@@ -1,5 +1,9 @@
 from crew.crew import Testcrew
 
-crew = Testcrew().crew()
-response= crew.kickoff({"query":"What data types exist?"})
-print(response)
+def main():
+    crew = Testcrew().crew()
+    response = crew.kickoff({"query": "What data types exist?"})
+    print(response)
+
+if __name__ == "__main__":
+    main()
