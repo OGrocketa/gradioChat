@@ -13,8 +13,13 @@ dependencies = [
 ]
 
 [project.scripts]
-run_crew = "crew.main:run"
 start = "backend.main:start"
+crew = "crew.main:run"
+run_crew = "crew.main:run"
+train = "crew.main:train"
+replay = "crew.main:replay"
+test = "crew.main:test"
+
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
