@@ -80,9 +80,9 @@ with gr.Blocks() as demo:
     @submitBtn.click(inputs=[userInput,agentSelection,processLogs], outputs=[output, processLogs])
     def get_answer(userInput,agentSelection,processLogs):
         if not userInput:
-            return "Please enter a query."
+            yield(None,"Please enter a query.") 
         if agentSelection == 'Select an agent':
-            return "Please select an agent."
+            yield(None,"Please select an agent.") 
         accumulated_logs = processLogs
 
         crew = Testcrew().crew()
