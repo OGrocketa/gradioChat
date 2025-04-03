@@ -54,8 +54,24 @@ with gr.Blocks() as demo:
     def upload_files(files,logs):
         return process_file(files,logs)
     
+    @files.delete(inputs=processLogs, outputs=processLogs)
+    def delete_files(deleted_data: gr.DeletedFileData, logs):
+        pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
+        file_name = os.path.basename(deleted_data.file.path)
+        file_path = os.path.join(pdf_dir, file_name)
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                logs += f"\n- {file_name} deleted from directory."
+            else:
+                logs += f"\n- {file_name} not found in directory."
+        except Exception as e:
+            logs += f"\n- Error deleting {file_name}: {e}"
+        return logs
+
+    
     @files.clear(inputs=[files,processLogs],outputs=processLogs)
-    def upload_files(files,logs):
+    def clear_files(files,logs):
         pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
         shutil.rmtree(pdf_dir)
         return logs + "\n " + "- Files deleted to ask questions you need to upload files again"
@@ -67,6 +83,7 @@ with gr.Blocks() as demo:
             return "Please enter a query."
         if agentSelection == 'Select an agent':
             return "Please select an agent."
+        accumulated_logs = processLogs
 
         crew = Testcrew().crew()
         ragTool = RagTool()
@@ -85,17 +102,17 @@ with gr.Blocks() as demo:
                     break
 
             data_extractor_agent.tools.append(ragTool)
-            newProcessLogs = processLogs + '\n- Added RagTool to PdfExpert' 
-            yield (None, newProcessLogs)
+            accumulated_logs = accumulated_logs + '\n- Added RagTool to PdfExpert' 
+            yield (None, accumulated_logs)
 
-        newProcessLogs = processLogs + '\n- Thinking on the answer...' 
-        yield (None, newProcessLogs)
+        accumulated_logs = accumulated_logs + '\n- Thinking on the answer...' 
+        yield (None, accumulated_logs)
 
         response = crew.kickoff({"query": userInput})
         if response:
-            newProcessLogs = processLogs + '\n- Answer is ready' 
-            
-        yield (response, newProcessLogs)
+            accumulated_logs = accumulated_logs + '\n- Answer is ready' 
+
+        yield (response, accumulated_logs)
 
 try:
     demo.launch()
@@ -103,5 +120,8 @@ except e:
     print("Error launching the app:", e)
 finally:
     pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
+    db_dir = os.path.join(os.path.dirname(__file__), "db")
     if os.path.exists(pdf_dir):
         shutil.rmtree(pdf_dir)
+    if os.path.exists(db_dir):
+        shutil.rmtree(db_dir)
