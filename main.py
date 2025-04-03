@@ -1,4 +1,5 @@
 from crew.crew import Testcrew
+from crewai_tools import RagTool
 import gradio as gr
 import os,shutil
 
@@ -60,13 +61,47 @@ with gr.Blocks() as demo:
         return logs + "\n " + "- Files deleted to ask questions you need to upload files again"
     
 
-    @submitBtn.click(inputs=userInput, outputs=output)
-    def get_answer(userInput):
+    @submitBtn.click(inputs=[userInput,agentSelection,processLogs], outputs=[output, processLogs])
+    def get_answer(userInput,agentSelection,processLogs):
         if not userInput:
             return "Please enter a query."
-            
-        crew = Testcrew().crew()
-        response = crew.kickoff({"query": userInput})
-        return response
+        if agentSelection == 'Select an agent':
+            return "Please select an agent."
 
-demo.launch()
+        crew = Testcrew().crew()
+        ragTool = RagTool()
+
+        pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
+
+        for file in os.listdir(pdf_dir):
+            pdf_path = os.path.join(pdf_dir, file)
+            ragTool.add(source=pdf_path)
+        
+
+        if agentSelection == 'PdfExpert':
+            for agent in crew.agents:
+                if hasattr(agent, "role") and agent.role.strip().lower() == "data extractor":
+                    data_extractor_agent = agent
+                    break
+
+            data_extractor_agent.tools.append(ragTool)
+            newProcessLogs = processLogs + '\n- Added RagTool to PdfExpert' 
+            yield (None, newProcessLogs)
+
+        newProcessLogs = processLogs + '\n- Thinking on the answer...' 
+        yield (None, newProcessLogs)
+
+        response = crew.kickoff({"query": userInput})
+        if response:
+            newProcessLogs = processLogs + '\n- Answer is ready' 
+            
+        yield (response, newProcessLogs)
+
+try:
+    demo.launch()
+except e:
+    print("Error launching the app:", e)
+finally:
+    pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
+    if os.path.exists(pdf_dir):
+        shutil.rmtree(pdf_dir)

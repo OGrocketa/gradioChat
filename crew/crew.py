@@ -10,9 +10,6 @@ import os
 
 load_dotenv()
 
-rag_tool = RagTool()
-rag_tool.add(source= "/Users/yaraslausedach/Code/gradioChat/crew/knowledge/ca2-data (2).pdf")
-
 @CrewBase
 class Testcrew():
 	"""Testcrew crew"""
@@ -26,7 +23,7 @@ class Testcrew():
 		return Agent(
 			config=self.agents_config['data_extractor'],
 			max_iter = 5,
-			tools=[rag_tool]
+			tools=[]
 
 		)
 
@@ -58,7 +55,7 @@ class Testcrew():
 			agents=self.agents,
 			tasks=self.tasks,
 			process=Process.sequential,
-			verbose=False,
+			verbose=True,
 			memory=False,
 			# long_term_memory = LongTermMemory(
 			# 	storage=LTMSQLiteStorage(
