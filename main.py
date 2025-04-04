@@ -1,7 +1,9 @@
 from crew.crew import Testcrew
+from crew.tools.doc_to_summary_tool import doc_to_summary_tool
 from crewai_tools import RagTool
 import gradio as gr
 import os,shutil
+
 
 def get_agent_tools(agentName):
     if(agentName == 'PdfExpert'):
@@ -12,7 +14,7 @@ def get_agent_tools(agentName):
         return []
 
 def process_file(uploaded_files,logs):
-    pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
+    pdf_dir = os.path.join(os.path.dirname(__file__),"crew","knowledge")
     if os.path.exists(pdf_dir):
         shutil.rmtree(pdf_dir)
 
@@ -56,7 +58,7 @@ with gr.Blocks() as demo:
     
     @files.delete(inputs=processLogs, outputs=processLogs)
     def delete_files(deleted_data: gr.DeletedFileData, logs):
-        pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
+        pdf_dir = os.path.join(os.path.dirname(__file__),"crew","knowledge")
         file_name = os.path.basename(deleted_data.file.path)
         file_path = os.path.join(pdf_dir, file_name)
         try:
@@ -72,13 +74,13 @@ with gr.Blocks() as demo:
     
     @files.clear(inputs=[files,processLogs],outputs=processLogs)
     def clear_files(files,logs):
-        pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
+        pdf_dir = os.path.join(os.path.dirname(__file__),"crew","knowledge")
         shutil.rmtree(pdf_dir)
         return logs + "\n " + "- Files deleted to ask questions you need to upload files again"
     
 
-    @submitBtn.click(inputs=[userInput,agentSelection,processLogs], outputs=[output, processLogs])
-    def get_answer(userInput,agentSelection,processLogs):
+    @submitBtn.click(inputs=[userInput,agentSelection,processLogs,agentConfig], outputs=[output, processLogs])
+    def get_answer(userInput,agentSelection,processLogs,agentConfig):
         if not userInput:
             yield(None,"Please enter a query.") 
         if agentSelection == 'Select an agent':
@@ -88,7 +90,7 @@ with gr.Blocks() as demo:
         crew = Testcrew().crew()
         ragTool = RagTool()
 
-        pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
+        pdf_dir = os.path.join(os.path.dirname(__file__),"crew","knowledge")
 
         for file in os.listdir(pdf_dir):
             pdf_path = os.path.join(pdf_dir, file)
@@ -102,6 +104,10 @@ with gr.Blocks() as demo:
                     break
 
             data_extractor_agent.tools.append(ragTool)
+
+            if("Summarize Text" in agentConfig):
+                data_extractor_agent.tools.append(doc_to_summary_tool)
+            
             accumulated_logs = accumulated_logs + '\n- Added RagTool to PdfExpert' 
             yield (None, accumulated_logs)
 
@@ -119,7 +125,7 @@ try:
 except e:
     print("Error launching the app:", e)
 finally:
-    pdf_dir = os.path.join(os.path.dirname(__file__), "pdfs")
+    pdf_dir = os.path.join(os.path.dirname(__file__),"crew","knowledge")
     db_dir = os.path.join(os.path.dirname(__file__), "db")
     if os.path.exists(pdf_dir):
         shutil.rmtree(pdf_dir)
