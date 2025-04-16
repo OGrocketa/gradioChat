@@ -1,0 +1,21 @@
+retrieve_data:
+  description: >
+    If no history,
+    Retrieve the data from the knowledge base based on the user's input:{query}.
+    But if there is a history just return history conversation .
+  expected_output: >
+    A list of all possible data which could be relevant to the user's input
+  agent: data_extractor
+
+summarize_data:
+  description: >
+    Serve the collected data in the best possible way and only serve data relevant to the users question: {query}
+    <important> If there was no data found or the provided data is not relevant to the user's question,
+    then return a message "No data found". </important>
+     
+  expected_output: >
+    A list of summarized data using bluepoints
+    formatted markdown without '```'
+    or "No data found" in case if there is no data
+  agent: data_summarizer
+

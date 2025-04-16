@@ -1,0 +1,30 @@
+[project]
+name = "gradiochat"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "OGrocketa",email = "jaroslaw.sedach@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "crewai[tools] (>=0.108.0,<0.109.0)",
+    "gradio (>=5.23.3,<6.0.0)",
+    "docling (>=2.28.4,<3.0.0)",
+    "langchain-experimental (>=0.3.4,<0.4.0)",
+]
+
+[project.scripts]
+crew = "crew.main:run"
+run_crew = "crew.main:run"
+train = "crew.main:train"
+replay = "crew.main:replay"
+test = "crew.main:test"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.crewai]
+type = "crew"
+
