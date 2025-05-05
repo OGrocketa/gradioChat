@@ -99,7 +99,7 @@ with gr.Blocks() as demo:
 
         if agentSelection == 'PdfExpert':
             for agent in crew.agents:
-                if hasattr(agent, "role") and agent.role.strip().lower() == "data extractor":
+                if hasattr(agent, "role") and agent.role.strip().lower() == "data_extractor":
                     data_extractor_agent = agent
                     break
 

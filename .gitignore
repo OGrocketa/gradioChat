@@ -3,8 +3,5 @@
 __pycache__/
 .DS_Store
 db
-.gradio/certificate.pem
 pdfs
 .gradio
-poetry.lock
-tests/

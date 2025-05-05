@@ -2,8 +2,6 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.memory import LongTermMemory
 from crewai.memory.storage.ltm_sqlite_storage import LTMSQLiteStorage
-from crewai_tools import RagTool
-from crewai_tools import PDFSearchTool
 from dotenv import load_dotenv
 import os
 

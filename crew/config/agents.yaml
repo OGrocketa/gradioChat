@@ -1,6 +1,6 @@
 data_extractor:
   role: >
-    data extractor
+    data_extractor
   goal: >
     Extract the most relevant data from using available tools, do not answer the users question.
     Only retrieve as much data as possible which could be even distantly relative to the questions: {query}
