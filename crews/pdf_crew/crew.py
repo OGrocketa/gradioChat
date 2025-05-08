@@ -1,7 +1,5 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-from crewai.memory import LongTermMemory
-from crewai.memory.storage.ltm_sqlite_storage import LTMSQLiteStorage
 from dotenv import load_dotenv
 import os
 
@@ -9,8 +7,8 @@ import os
 load_dotenv()
 
 @CrewBase
-class Testcrew():
-	"""Testcrew crew"""
+class PdfCrew():
+	"""PdfCrew crew"""
 
 	agents_config = 'config/agents.yaml'
 	tasks_config = 'config/tasks.yaml'
@@ -47,7 +45,7 @@ class Testcrew():
 	
 	@crew
 	def crew(self) -> Crew:
-		"""Creates the Testcrew crew"""
+		"""Creates the PdfCrew crew"""
 
 		return Crew(
 			agents=self.agents,

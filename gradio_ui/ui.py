@@ -1,9 +1,8 @@
-from crews.pdf_crew.crew import Testcrew
+from crews import PdfCrew
 from crews.pdf_crew.tools import doc_to_summary_tool    
 from crewai_tools import RagTool
 import gradio as gr
-import os
-import shutil
+import os, shutil
 
 def get_agent_tools(agentName):
     if(agentName == 'PdfExpert'):
@@ -87,7 +86,7 @@ def create_ui():
                 yield(None,"Please select an agent.") 
             accumulated_logs = processLogs
 
-            crew = Testcrew().crew()
+            crew = PdfCrew().crew()
             ragTool = RagTool()
 
             pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crew", "knowledge")
