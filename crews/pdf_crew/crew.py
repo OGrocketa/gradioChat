@@ -54,10 +54,4 @@ class Testcrew():
 			tasks=self.tasks,
 			process=Process.sequential,
 			verbose=True,
-			memory=False,
-			# long_term_memory = LongTermMemory(
-			# 	storage=LTMSQLiteStorage(
-			# 			db_path="./db/long_term_memory_storage.db"
-			# 		)
-			# ),
 		)

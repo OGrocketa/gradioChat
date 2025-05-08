@@ -2,8 +2,7 @@ from crewai.tools import tool
 from docling.document_converter import DocumentConverter
 from docling.datamodel.base_models import InputFormat
 from docling.document_converter import DocumentConverter, PdfFormatOption
-from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
-from langchain_experimental.text_splitter import SemanticChunker
+from docling.datamodel.pipeline_options import PdfPipelineOptions
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 import os
