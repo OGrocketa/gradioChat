@@ -1,5 +1,5 @@
 from crews import PdfCrew
-from crews.pdf_crew.tools import doc_to_summary_tool    
+from crews.pdf_crew.tools.doc_to_summary_tool import doc_to_summary_tool
 from crewai_tools import RagTool
 import gradio as gr
 import os, shutil
@@ -13,7 +13,7 @@ def get_agent_tools(agentName):
         return []
 
 def process_file(uploaded_files, logs):
-    pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crew", "knowledge")
+    pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", "pdf_crew", "knowledge")
     if os.path.exists(pdf_dir):
         shutil.rmtree(pdf_dir)
 
@@ -57,7 +57,7 @@ def create_ui():
         
         @files.delete(inputs=processLogs, outputs=processLogs)
         def delete_files(deleted_data: gr.DeletedFileData, logs):
-            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crew", "knowledge")
+            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", "pdf_crew", "knowledge")
             file_name = os.path.basename(deleted_data.file.path)
             file_path = os.path.join(pdf_dir, file_name)
             try:
@@ -73,7 +73,7 @@ def create_ui():
         
         @files.clear(inputs=[files,processLogs],outputs=processLogs)
         def clear_files(files,logs):
-            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crew", "knowledge")
+            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", "pdf_crew", "knowledge")
             shutil.rmtree(pdf_dir)
             return logs + "\n " + "- Files deleted to ask questions you need to upload files again"
         
@@ -89,7 +89,7 @@ def create_ui():
             crew = PdfCrew().crew()
             ragTool = RagTool()
 
-            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crew", "knowledge")
+            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", "pdf_crew", "knowledge")
 
             for file in os.listdir(pdf_dir):
                 pdf_path = os.path.join(pdf_dir, file)

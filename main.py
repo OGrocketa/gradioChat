@@ -8,7 +8,7 @@ try:
 except Exception as e:
     print("Error launching the app:", e)
 finally:
-    pdf_dir = os.path.join(os.path.dirname(__file__), "crew", "knowledge")
+    pdf_dir = os.path.join(os.path.dirname(__file__), "crews", "pdf_crew", "knowledge")
     db_dir = os.path.join(os.path.dirname(__file__), "db")
     if os.path.exists(pdf_dir):
         shutil.rmtree(pdf_dir)

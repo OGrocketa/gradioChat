@@ -19,7 +19,7 @@ def doc_to_summary_tool() -> str:
       - A combined summary of all the chunks.
     """
     summaries = []
-    source = os.environ["KNOWLEDGE_DIR"]
+    source = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "crews", "pdf_crew", "knowledge")
     llm = ChatOpenAI(model= "gpt-4o-mini",max_retries=2, temperature=0.5 )
 
     for filename in os.listdir(source):

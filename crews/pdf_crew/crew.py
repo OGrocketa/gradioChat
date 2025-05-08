@@ -53,3 +53,7 @@ class PdfCrew():
 			process=Process.sequential,
 			verbose=True,
 		)
+
+if __name__ == "__main__":
+	crew = PdfCrew().crew()
+	crew.kickoff(input={"input":"summarize"})
