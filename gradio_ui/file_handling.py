@@ -1,7 +1,7 @@
 import os
 import shutil
 
-def process_file(uploaded_files, logs, selected_agent):
+def handle_file_upload(uploaded_files, logs, selected_agent):
     pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", selected_agent, "knowledge")
     if os.path.exists(pdf_dir):
         shutil.rmtree(pdf_dir)
@@ -15,7 +15,7 @@ def process_file(uploaded_files, logs, selected_agent):
 
     return logs + "\n- Files uploaded, you can ask questions"
 
-def delete_file(deleted_data, logs, agentSelection):
+def handle_file_deletion(deleted_data, logs, agentSelection):
     pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", agentSelection, "knowledge")
     file_name = os.path.basename(deleted_data.file.path)
     file_path = os.path.join(pdf_dir, file_name)
@@ -29,7 +29,7 @@ def delete_file(deleted_data, logs, agentSelection):
         logs += f"\n- Error deleting {file_name}: {e}"
     return logs
 
-def clear_files(logs,agentSelection):
+def handle_files_clear(logs, agentSelection):
     pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", agentSelection, "knowledge")
     shutil.rmtree(pdf_dir)
     return logs + "\n " + "- Files deleted to ask questions you need to upload files again"
