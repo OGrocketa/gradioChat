@@ -13,8 +13,8 @@ def create_ui():
         gr.Markdown("# CrewAI Demo")
         with gr.Row():
             with gr.Column(scale=1):
-                agentSelection = gr.Dropdown(choices=discover_available_crews(), label="Select Agent", interactive=True, value=discover_available_crews()[0])
-                agentConfig = gr.CheckboxGroup(label="Agent Config", interactive=True, choices=discover_agent_tools(discover_available_crews()[0]))
+                agentSelection = gr.Dropdown(choices=discover_available_crews(), label="Select Crew", interactive=True, value=discover_available_crews()[0])
+                agentConfig = gr.CheckboxGroup(label="Crew Additional Tools", interactive=True, choices=discover_agent_tools(discover_available_crews()[0]))
                 files = gr.File(label="Upload Files", file_count="multiple", file_types=[".pdf"])
                 userInput = gr.Textbox(lines=5, label="Enter your query")
                 submitBtn = gr.Button("Submit")
