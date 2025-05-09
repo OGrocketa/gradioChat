@@ -17,7 +17,6 @@ def discover_agent_tools(agent_name):
         if os.path.exists(tools_dir):
             for file in os.listdir(tools_dir):
                 if file.endswith("_tool.py") and not file.startswith("__"):
-                    # Convert snake_case to Title Case for display
                     tool_name = file.replace('.py', '').replace('_', ' ').title()
                     tools.append(tool_name)
     except Exception as e:

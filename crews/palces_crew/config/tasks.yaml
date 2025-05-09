@@ -1,0 +1,54 @@
+get_coordinates_task:
+  description: >
+    From users {input}. Get the latitude and longitude and 1 word typeOfPlace using the geocoding tool,
+    if user gave coordinates directly do not use the tool just parse the user query.
+    The typeOfPlace should be aligned to one of the following variants:
+    "acai_shop, afghani_restaurant, african_restaurant, american_restaurant, asian_restaurant, "
+    "bagel_shop, bakery, bar, bar_and_grill, barbecue_restaurant, brazilian_restaurant, "
+    "breakfast_restaurant, brunch_restaurant, buffet_restaurant, cafe, cafeteria, candy_store, "
+    "cat_cafe, chinese_restaurant, chocolate_factory, chocolate_shop, coffee_shop, confectionery, "
+    "deli, dessert_restaurant, dessert_shop, diner, dog_cafe, donut_shop, fast_food_restaurant, "
+    "fine_dining_restaurant, food_court, french_restaurant, greek_restaurant, hamburger_restaurant, "
+    "ice_cream_shop, indian_restaurant, indonesian_restaurant, italian_restaurant, japanese_restaurant, "
+    "juice_shop, korean_restaurant, lebanese_restaurant, meal_delivery, meal_takeaway, "
+    "mediterranean_restaurant, mexican_restaurant, middle_eastern_restaurant, pizza_restaurant, "
+    "pub, ramen_restaurant, restaurant, sandwich_shop, seafood_restaurant, spanish_restaurant, "
+    "steak_house, sushi_restaurant, tea_house, thai_restaurant, turkish_restaurant, vegan_restaurant, "
+    "vegetarian_restaurant, vietnamese_restaurant, wine_bar"
+  expected_output: >
+    a string with well defined latitude longitude and typeOfPlace string
+  agent: places_api_agent
+
+places_api_task:
+  description: >
+    From calculated coordinates and typeOfPlace
+    Use the Google Places API to perform a thorough search for places and retrieve detailed information for each one.
+    Ensure that you return all possible data provided by the api call
+    If no places found nearby just say to the user that no places were found.
+    When you call the Google Places Nearby Search tool, do NOT
+    analyze, summarize, or reformat its output.  As soon as you
+    receive the Observation from the tool, immediately reply:
+
+    Final Answer: <exactly the tool output>
+
+    Do not emit any additional Thoughts or commentary.
+
+  expected_output: >
+    Not modified return value from the tool just leave it as it is
+  agent: places_api_agent
+
+reporting_task:
+  description: >
+    Write a final report based on collected research data from the tasks of every research agent.
+    The report should help travelers by presenting only the most relevant findings.
+    Do not add anything not present in the provided output of those tasks.
+
+     <important>Take all outputs from other agent's tasks,
+     do not anything from your knowledge </important>
+  expected_output: >
+    A structured final report in the md format summarizing all research findings clearly and concisely.
+    The final report should contain all the information from the other tasks.
+    reddit_task, tavily_task, places_api_task
+
+    user should visible see from where the information comes from.
+  agent: places_api_agent
