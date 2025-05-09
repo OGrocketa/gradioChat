@@ -5,12 +5,22 @@ import gradio as gr
 import os, shutil
 
 def get_agent_tools(agentName):
-    if(agentName == 'PdfExpert'):
-        return ["Summarize Text", "Tool2", "Tool3"]
-    elif(agentName == 'Agent 2'):
-        return ["Tool1", "Tool2"]
-    else:
-        return []
+    tools = []
+    tools_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", agentName, "tools")
+    if os.path.exists(tools_dir):
+        for file in os.listdir(tools_dir):
+            if file.endswith("_tool.py") and not file.startswith("__"):
+                tools.append(file.replace('.py', ''))
+    return sorted(tools)
+
+def get_crews():
+    crews = []
+    crews_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews")
+    for file in os.listdir(crews_dir):
+        if os.path.isdir(os.path.join(crews_dir, file)) and file != "__pycache__":
+            crews.append(file)
+    return sorted(crews) 
+
 
 def process_file(uploaded_files, logs):
     pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", "pdf_crew", "knowledge")
@@ -31,11 +41,12 @@ def create_ui():
         gr.Markdown("# CrewAI Demo")
         with gr.Row():
             with gr.Column(scale=1):
-                agentSelection = gr.Dropdown(choices=['Select an agent','PdfExpert','Agent 2'], label="Select Agent",interactive=True)
-                agentConfig = gr.CheckboxGroup(label="Agent Config", interactive=True,choices=[])
+                agentSelection = gr.Dropdown(choices=get_crews(), label="Select Agent", interactive=True, value=get_crews()[0])
+                agentConfig = gr.CheckboxGroup(label="Agent Config", interactive=True, choices=get_agent_tools(get_crews()[0]))
                 files = gr.File(label="Upload Files", file_count="multiple", file_types=[".pdf"])
                 userInput = gr.Textbox(lines=5, label="Enter your query")
                 submitBtn = gr.Button("Submit")
+                
         
             with gr.Column(scale=2):
                 processLogs = gr.Textbox(lines=5, label="Logs", autoscroll=True, interactive=False)
