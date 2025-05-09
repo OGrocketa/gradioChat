@@ -8,6 +8,7 @@ def get_agent_tools(agentName):
     tools = []
     tools_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", agentName, "tools")
     if os.path.exists(tools_dir):
+        print(tools_dir)
         for file in os.listdir(tools_dir):
             if file.endswith("_tool.py") and not file.startswith("__"):
                 tools.append(file.replace('.py', ''))
@@ -19,11 +20,11 @@ def get_crews():
     for file in os.listdir(crews_dir):
         if os.path.isdir(os.path.join(crews_dir, file)) and file != "__pycache__":
             crews.append(file)
-    return sorted(crews) 
+    return sorted(crews)
 
 
-def process_file(uploaded_files, logs):
-    pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", "pdf_crew", "knowledge")
+def process_file(uploaded_files, logs, selected_agent):
+    pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", selected_agent, "knowledge")
     if os.path.exists(pdf_dir):
         shutil.rmtree(pdf_dir)
 
@@ -62,13 +63,13 @@ def create_ui():
             outputs=agentConfig
         )
 
-        @files.upload(inputs=[files,processLogs],outputs=processLogs)
-        def upload_files(files,logs):
-            return process_file(files,logs)
+        @files.upload(inputs=[files,processLogs,agentSelection],outputs=processLogs)
+        def upload_files(files,logs,agentSelection):
+            return process_file(files,logs,agentSelection)
         
-        @files.delete(inputs=processLogs, outputs=processLogs)
-        def delete_files(deleted_data: gr.DeletedFileData, logs):
-            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", "pdf_crew", "knowledge")
+        @files.delete(inputs=[processLogs,agentSelection], outputs=processLogs)
+        def delete_files(deleted_data: gr.DeletedFileData, logs, agentSelection):
+            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", agentSelection, "knowledge")
             file_name = os.path.basename(deleted_data.file.path)
             file_path = os.path.join(pdf_dir, file_name)
             try:
@@ -82,9 +83,9 @@ def create_ui():
             return logs
 
         
-        @files.clear(inputs=[files,processLogs],outputs=processLogs)
-        def clear_files(files,logs):
-            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", "pdf_crew", "knowledge")
+        @files.clear(inputs=[files,processLogs,agentSelection],outputs=processLogs)
+        def clear_files(files,logs,agentSelection):
+            pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", agentSelection, "knowledge")
             shutil.rmtree(pdf_dir)
             return logs + "\n " + "- Files deleted to ask questions you need to upload files again"
         
