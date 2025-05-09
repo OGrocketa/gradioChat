@@ -42,7 +42,7 @@ def doc_to_summary_tool() -> str:
             mdFile = result.document.export_to_markdown()
 
             prompt = f"Summarize the following document:\n\n{mdFile}"
-            response = llm([HumanMessage(content=prompt)])
+            response = llm.invoke([HumanMessage(content=prompt)])
             summary = f"File name: {filename}", response.content.strip()
             summaries.append(summary)
         except Exception as e:

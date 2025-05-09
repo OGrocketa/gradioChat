@@ -1,5 +1,5 @@
 from crews import PdfCrew
-from crews.pdf_crew.tools.doc_to_summary_tool import doc_to_summary_tool
+from crews.pdf_crew import doc_to_summary_tool
 from crewai_tools import RagTool
 import gradio as gr
 import os, shutil
