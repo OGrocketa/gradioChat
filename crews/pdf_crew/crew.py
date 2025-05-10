@@ -1,5 +1,6 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from crewai_tools import RagTool
 from dotenv import load_dotenv
 import os
 
@@ -19,7 +20,7 @@ class PdfCrew():
 		return Agent(
 			config=self.agents_config['data_extractor'],
 			max_iter = 5,
-			tools=[]
+			tools=[RagTool()]
 
 		)
 

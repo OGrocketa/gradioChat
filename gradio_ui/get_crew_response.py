@@ -6,7 +6,6 @@ def get_crew_response(userInput,agentSelection,processLogs,agentConfig):
             accumulated_logs = processLogs
 
             crew = PdfCrew().crew()
-            ragTool = RagTool()
 
             pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", "pdf_crew", "knowledge")
 
@@ -21,12 +20,9 @@ def get_crew_response(userInput,agentSelection,processLogs,agentConfig):
                         data_extractor_agent = agent
                         break
 
-                data_extractor_agent.tools.append(ragTool)
-
                 if("Summarize Text" in agentConfig):
                     data_extractor_agent.tools.append(doc_to_summary_tool)
                 
-                accumulated_logs = accumulated_logs + '\n- Added RagTool to PdfExpert' 
                 yield (None, accumulated_logs)
 
             accumulated_logs = accumulated_logs + '\n- Thinking on the answer...' 

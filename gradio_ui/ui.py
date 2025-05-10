@@ -1,11 +1,7 @@
-from crews import PdfCrew
-from crews.pdf_crew import doc_to_summary_tool
-from crewai_tools import RagTool
 from .file_handling import handle_file_upload, handle_file_deletion, handle_files_clear
 from .crew_data_fetch import discover_agent_tools, discover_available_crews
 from .get_crew_response import get_crew_response
 import gradio as gr
-import os, shutil
 
 
 def create_ui():
