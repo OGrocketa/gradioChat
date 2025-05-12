@@ -1,10 +1,16 @@
 retrieve_data:
   description: >
-    If no history,
-    Retrieve the data from the knowledge base based on the user's input:{query}.
-    But if there is a history just return history conversation .
+    Analyze the user's query: {query}
+    
+    If the user explicitly asks for a summary or to summarize the documents:
+    1. Use the DocToSummaryTool to generate comprehensive summaries of all PDF documents
+    2. Return the summaries with their respective file names
+    
   expected_output: >
-    A list of all possible data which could be relevant to the user's input
+    For summarization requests:
+    - A list of summaries, each prefixed with its file name
+    For other queries:
+    - A list of all possible data which could be relevant to the user's input
   agent: data_extractor
 
 summarize_data:

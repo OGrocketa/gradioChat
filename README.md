@@ -95,10 +95,10 @@ your_agent_name:
 ```yaml
 your_task_name:
   description: >
-    Your task description
+    Your task description, to include user input use "{query}"
   expected_output: >
     Expected output description
-  agent: your_agent_name
+  agent: your_agent_name    
 ```
 
 4. Create `tools/your_tool.py`:

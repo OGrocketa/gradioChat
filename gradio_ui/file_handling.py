@@ -3,10 +3,9 @@ import shutil
 
 def handle_file_upload(uploaded_files, logs, selected_agent):
     pdf_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", selected_agent, "knowledge")
-    if os.path.exists(pdf_dir):
-        shutil.rmtree(pdf_dir)
 
-    os.makedirs(pdf_dir)
+    if not os.path.exists(pdf_dir):
+        os.makedirs(pdf_dir)
     
     for uploaded_file in uploaded_files:
         file_name = os.path.basename(uploaded_file.name)

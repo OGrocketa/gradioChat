@@ -19,8 +19,8 @@ class PdfCrew():
 	def data_extractor(self) -> Agent:
 		return Agent(
 			config=self.agents_config['data_extractor'],
-			max_iter = 5,
-			tools=[RagTool()]
+			max_iter = 1,
+			tools=[]
 
 		)
 
@@ -34,14 +34,14 @@ class PdfCrew():
 	def research_task(self) -> Task:
 		return Task(
 			config=self.tasks_config['retrieve_data'],
-			max_iter= 5,
+			max_iter= 1,
 		)
 
 	@task
 	def reporting_task(self) -> Task:
 		return Task(
 			config=self.tasks_config['summarize_data'],
-			max_iter=5,
+			max_iter=1,
 		)
 	
 	@crew
@@ -54,7 +54,3 @@ class PdfCrew():
 			process=Process.sequential,
 			verbose=True,
 		)
-
-if __name__ == "__main__":
-	crew = PdfCrew().crew()
-	crew.kickoff(input={"input":"summarize"})

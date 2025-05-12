@@ -16,7 +16,7 @@ class PlacesCrew():
             config=self.agents_config['places_api_agent'],
             tools=[],
             verbose=True,
-            max_iter=3,
+            max_iter=1,
             
         )
 

@@ -1,6 +1,6 @@
 get_coordinates_task:
   description: >
-    From users {input}. Get the latitude and longitude and 1 word typeOfPlace using the geocoding tool,
+    From users {query}. Get the latitude and longitude and 1 word typeOfPlace using the geocoding tool,
     if user gave coordinates directly do not use the tool just parse the user query.
     The typeOfPlace should be aligned to one of the following variants:
     "acai_shop, afghani_restaurant, african_restaurant, american_restaurant, asian_restaurant, "
