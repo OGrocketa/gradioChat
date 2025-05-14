@@ -1,4 +1,4 @@
-import os
+import os, re, yaml
 
 def discover_agent_tools(agent_name):
     """
@@ -42,3 +42,18 @@ def discover_available_crews():
         print(f"Error discovering crews: {str(e)}")
         
     return sorted(crews)
+
+def extract_variables_from_tasks(crew_name):
+    """Extract variables from tasks.yaml files for a given crew."""
+    crew_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'crews', crew_name)
+    tasks_file = os.path.join(crew_dir, 'config', 'tasks.yaml')
+    
+    if os.path.exists(tasks_file):
+        with open(tasks_file, 'r') as f:
+            tasks = yaml.safe_load(f)
+            variables = set()
+            for task in tasks.values():
+                for description in task.values():
+                    matches = re.findall(r'\{([^}]+)\}', description)
+                    variables.update(matches)
+            return sorted(list(variables))
