@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-from prep_for_meeting.crew import PrepForMeetingCrew
+from prep_for_meeting_crew.crew import PrepForMeetingCrew
 
 # This main file is intended to be a way for your to run your
 # crew locally, so refrain from adding necessary logic into this file.

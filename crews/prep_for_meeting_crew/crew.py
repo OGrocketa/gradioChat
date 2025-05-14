@@ -18,6 +18,7 @@ class PrepForMeetingCrew:
             tools=[SerperDevTool(), ScrapeWebsiteTool()],
             allow_delegation=False,
             verbose=True,
+            max_iterations=1,
         )
 
     @agent
@@ -27,6 +28,7 @@ class PrepForMeetingCrew:
             tools=[SerperDevTool()],
             allow_delegation=False,
             verbose=True,
+            max_iterations=1,
         )
 
     @agent
@@ -35,6 +37,7 @@ class PrepForMeetingCrew:
             config=self.agents_config["sales_strategist_agent"],
             tools=[SerperDevTool()],
             verbose=True,
+            max_iterations=1,
         )
 
     @agent
@@ -43,6 +46,7 @@ class PrepForMeetingCrew:
             config=self.agents_config["briefing_coordinator_agent"],
             tools=[],
             verbose=True,
+            max_iterations=1,
         )
 
     @task
@@ -50,6 +54,7 @@ class PrepForMeetingCrew:
         return Task(
             config=self.tasks_config["research_task"],
             agent=self.lead_researcher_agent(),
+            
         )
 
     @task

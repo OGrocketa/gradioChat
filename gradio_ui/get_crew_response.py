@@ -1,7 +1,8 @@
 import os
 import importlib
+from  .crew_data_fetch import extract_variables_from_tasks
 
-def get_crew_response(userInput, agentSelection, processLogs, agentConfig):
+def get_crew_response(*args):
     """
     Handle the crew's response to a user query.
     
@@ -14,6 +15,14 @@ def get_crew_response(userInput, agentSelection, processLogs, agentConfig):
     Yields:
         tuple: (response, logs) containing the crew's response and updated logs
     """
+    #input: userInput + agentSelection, processLogs, agentConfig
+    userInput = args[:-3]
+    agentSelection = args[-3]
+    processLogs = args[-2]
+    agentConfig = args[-1]
+    
+    inputs = dict()
+    
     if not userInput:
         yield (None, "Please enter a query.")
         return
@@ -21,7 +30,15 @@ def get_crew_response(userInput, agentSelection, processLogs, agentConfig):
     if agentSelection == 'Select an agent':
         yield (None, "Please select an agent.")
         return
-        
+    
+    
+    variables = extract_variables_from_tasks(agentSelection)
+    if variables:
+        count = 0
+        for variable in variables:
+            inputs.update({variable: userInput[count]})
+            count += 1
+            
     try:
         accumulated_logs = processLogs
 
@@ -63,7 +80,7 @@ def get_crew_response(userInput, agentSelection, processLogs, agentConfig):
         accumulated_logs += '\n- Thinking on the answer...'
         yield (None, accumulated_logs)
 
-        response = crew.kickoff(inputs={"query": userInput})
+        response = crew.kickoff(inputs=inputs)
         if response:
             accumulated_logs += '\n- Answer is ready'
             yield (response, accumulated_logs)
