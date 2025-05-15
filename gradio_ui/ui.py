@@ -26,7 +26,6 @@ def create_ui():
                     
                     @submitBtn.click(inputs=userInput + [agentSelection, processLogs, agentConfig], outputs=[output, processLogs])
                     def get_answer(*args):    
-                        # Extract values from args
                         user_inputs = args[:-3]  # All but last 3 args are user inputs
                         selected_agent = args[-3]  # Second to last is agent selection
                         current_logs = args[-2]  # Second to last is process logs
@@ -42,9 +41,9 @@ def create_ui():
                                 final_response = response
                             if logs is not None:
                                 current_logs = logs
-                                yield None, current_logs  # Yield intermediate log updates
+                                yield None, current_logs  
                         
-                        yield final_response, current_logs  # Yield final response and logs
+                        yield final_response, current_logs
 
             with gr.Column(scale=2):
                 processLogs = gr.Textbox(lines=5, label="Logs", autoscroll=True, interactive=False)
