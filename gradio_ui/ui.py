@@ -35,15 +35,16 @@ def create_ui():
                         response_generator = get_crew_response(*user_inputs, selected_agent, current_logs, selected_config)
                         
                         final_response = None
-                        final_logs = current_logs
+                        current_logs = current_logs or ""
                         
                         for response, logs in response_generator:
                             if response is not None:
                                 final_response = response
                             if logs is not None:
-                                final_logs = logs
+                                current_logs = logs
+                                yield None, current_logs  # Yield intermediate log updates
                         
-                        return final_response, final_logs
+                        yield final_response, current_logs  # Yield final response and logs
 
             with gr.Column(scale=2):
                 processLogs = gr.Textbox(lines=5, label="Logs", autoscroll=True, interactive=False)
@@ -60,7 +61,7 @@ def create_ui():
             if files != None:
                 upload_files(files, logs, agent)
 
-            return update_agent_config(agent)
+            return gr.update(choices=discover_agent_tools(agent), value=[])
 
         agentSelection.change(
             fn=cleanup_knowledge_directories, 
