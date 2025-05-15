@@ -49,7 +49,7 @@ Here's a template for creating a new crew:
 ```python
 
 @CrewBase
-class YourCrewName():
+class CrewNameCrew():
     """Your crew description"""
 
     agents_config = 'config/agents.yaml'
