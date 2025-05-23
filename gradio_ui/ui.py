@@ -8,6 +8,7 @@ import os, shutil
 def create_ui():
     with gr.Blocks() as demo:
         gr.Markdown("# CrewAI Demo")
+        uploadedFiles = gr.BrowserState([])
         with gr.Row():
             with gr.Column(scale=1):
                 agentSelection = gr.Dropdown(choices=discover_available_crews(), label="Select Agent", interactive=True, value=discover_available_crews()[0])
@@ -54,9 +55,9 @@ def create_ui():
             return gr.update(choices=discover_agent_tools(agent))
 
         def cleanup_knowledge_directories(agent,files,logs):
-            for crew in os.listdir(os.path.join(os.path.dirname(os.path.dirname(__file__)),'crews')):
-                if os.path.exists(os.path.join(os.path.dirname(os.path.dirname(__file__)),'crews',crew,'knowledge')):
-                    shutil.rmtree(os.path.join(os.path.dirname(os.path.dirname(__file__)),'crews',crew,'knowledge'))
+            for file in uploadedFiles:
+                if os.path.exists(file.name):
+                    os.remove(file.name)
             if files != None:
                 upload_files(files, logs, agent)
 
@@ -68,16 +69,20 @@ def create_ui():
             outputs=agentConfig
         )
 
-        @files.upload(inputs=[files,processLogs,agentSelection],outputs=processLogs)
-        def upload_files(files,logs,agentSelection):
-            return handle_file_upload(files,logs,agentSelection)
+        @files.upload(inputs=[files,processLogs,agentSelection,uploadedFiles],outputs=[processLogs,uploadedFiles])
+        def upload_files(files,logs,agentSelection,uploadedFiles):
+            response = handle_file_upload(files,logs,agentSelection,uploadedFiles)
+            return response
         
-        @files.delete(inputs=[processLogs,agentSelection], outputs=processLogs)
-        def remove_file(deleted_data: gr.DeletedFileData, logs, agentSelection):
-            return handle_file_deletion(deleted_data, logs, agentSelection)
+        @files.delete(inputs=[processLogs,agentSelection,uploadedFiles], outputs=[processLogs,uploadedFiles])
+        def remove_file(deleted_data: gr.DeletedFileData, logs, agentSelection, uploadedFiles):
+            print("Before deletion",uploadedFiles)
+            response = handle_file_deletion(deleted_data, logs, agentSelection, uploadedFiles)
+            print("After deletion",uploadedFiles)
+            return response
 
-        @files.clear(inputs=[processLogs,agentSelection],outputs=processLogs)
-        def remove_all_files(logs,agentSelection):
-            return handle_files_clear(logs,agentSelection)
+        @files.clear(inputs=[processLogs,agentSelection,uploadedFiles],outputs=[processLogs,uploadedFiles])
+        def remove_all_files(logs,agentSelection,uploadedFiles):
+            return handle_files_clear(logs,agentSelection,uploadedFiles)
 
     return demo 
