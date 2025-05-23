@@ -9,12 +9,15 @@ def create_ui():
     with gr.Blocks() as demo:
         gr.Markdown("# CrewAI Demo")
         uploadedFiles = gr.BrowserState([])
+        
+
         with gr.Row():
             with gr.Column(scale=1):
                 agentSelection = gr.Dropdown(choices=discover_available_crews(), label="Select Agent", interactive=True, value=discover_available_crews()[0])
                 agentConfig = gr.CheckboxGroup(label="Agent Config", interactive=True, choices=discover_agent_tools(discover_available_crews()[0]))
                 files = gr.File(label="Upload Files", file_count="multiple", file_types=[".pdf"])
-                
+                preloadedFiles = gr.File(label="Preloaded Files", file_count="multiple")
+
                 @gr.render(inputs=[agentSelection])
                 def render_variable_inputs(agent):
                     variables = extract_variables_from_tasks(agent)
@@ -54,19 +57,20 @@ def create_ui():
         def update_agent_config(agent):
             return gr.update(choices=discover_agent_tools(agent))
 
-        def cleanup_knowledge_directories(agent,files,logs):
+        def relocate_files(agent,files,logs,uploadedFiles):
             for file in uploadedFiles:
-                if os.path.exists(file.name):
-                    os.remove(file.name)
+                if os.path.exists(file):
+                    os.remove(file)
+            uploadedFiles.clear()
             if files != None:
-                upload_files(files, logs, agent)
+                upload_files(files, logs, agent,uploadedFiles)
 
-            return gr.update(choices=discover_agent_tools(agent), value=[])
+            return gr.update(choices=discover_agent_tools(agent), value=[]), uploadedFiles
 
         agentSelection.change(
-            fn=cleanup_knowledge_directories, 
-            inputs=[agentSelection,files,processLogs], 
-            outputs=agentConfig
+            fn=relocate_files, 
+            inputs=[agentSelection,files,processLogs,uploadedFiles], 
+            outputs=[agentConfig,uploadedFiles]
         )
 
         @files.upload(inputs=[files,processLogs,agentSelection,uploadedFiles],outputs=[processLogs,uploadedFiles])
