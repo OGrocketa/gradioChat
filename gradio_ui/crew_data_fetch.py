@@ -57,3 +57,22 @@ def extract_variables_from_tasks(crew_name):
                     matches = re.findall(r'\{([^}]+)\}', description)
                     variables.update(matches)
             return sorted(list(variables))
+        
+def get_preloaded_files(agent_name):
+    """
+    Get preloaded files for a given agent.
+    
+    Args:
+        agent_name (str): Name of the agent to get preloaded files for
+        
+    Returns:
+        list: List of preloaded files
+    """
+    files = []
+    files_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", agent_name, "knowledge")
+    
+    if os.path.exists(files_dir):
+        for file in os.listdir(files_dir):
+            files.append(os.path.join(files_dir, file))
+    return files
+

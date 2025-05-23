@@ -1,5 +1,5 @@
 from .file_handling import handle_file_upload, handle_file_deletion, handle_files_clear
-from .crew_data_fetch import discover_agent_tools, discover_available_crews, extract_variables_from_tasks
+from .crew_data_fetch import discover_agent_tools, discover_available_crews, extract_variables_from_tasks, get_preloaded_files
 from .get_crew_response import get_crew_response
 import gradio as gr
 import os, shutil
@@ -15,8 +15,8 @@ def create_ui():
             with gr.Column(scale=1):
                 agentSelection = gr.Dropdown(choices=discover_available_crews(), label="Select Agent", interactive=True, value=discover_available_crews()[0])
                 agentConfig = gr.CheckboxGroup(label="Agent Config", interactive=True, choices=discover_agent_tools(discover_available_crews()[0]))
-                files = gr.File(label="Upload Files", file_count="multiple", file_types=[".pdf"])
-                preloadedFiles = gr.File(label="Preloaded Files", file_count="multiple")
+                files = gr.File(label="Upload Files", file_count="multiple")
+                preloadedFiles = gr.File(label="Preloaded Files", file_count="multiple", value=get_preloaded_files(discover_available_crews()[0]))
 
                 @gr.render(inputs=[agentSelection])
                 def render_variable_inputs(agent):
@@ -71,6 +71,15 @@ def create_ui():
             fn=relocate_files, 
             inputs=[agentSelection,files,processLogs,uploadedFiles], 
             outputs=[agentConfig,uploadedFiles]
+        )
+
+        def update_preloaded_files(agent):
+            return gr.update(value=get_preloaded_files(agent))
+        
+        agentSelection.change(
+            fn=update_preloaded_files,
+            inputs=[agentSelection],
+            outputs=[preloadedFiles]
         )
 
         @files.upload(inputs=[files,processLogs,agentSelection,uploadedFiles],outputs=[processLogs,uploadedFiles])
