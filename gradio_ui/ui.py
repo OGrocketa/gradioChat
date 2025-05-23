@@ -76,9 +76,7 @@ def create_ui():
         
         @files.delete(inputs=[processLogs,agentSelection,uploadedFiles], outputs=[processLogs,uploadedFiles])
         def remove_file(deleted_data: gr.DeletedFileData, logs, agentSelection, uploadedFiles):
-            print("Before deletion",uploadedFiles)
             response = handle_file_deletion(deleted_data, logs, agentSelection, uploadedFiles)
-            print("After deletion",uploadedFiles)
             return response
 
         @files.clear(inputs=[processLogs,agentSelection,uploadedFiles],outputs=[processLogs,uploadedFiles])
