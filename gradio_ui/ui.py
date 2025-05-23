@@ -16,7 +16,8 @@ def create_ui():
                 preloadedFiles = gr.File(
                     label="Preloaded Files", 
                     file_count="multiple", 
-                    value=get_preloaded_files(discover_available_crews()[0])
+                    value=get_preloaded_files(discover_available_crews()[0]),
+                    visible=bool(not (get_preloaded_files(discover_available_crews()[0]) == []))
                 )
 
                 files = gr.File(label="Upload Files", file_count="multiple", file_types=[".pdf"])
@@ -71,7 +72,7 @@ def create_ui():
             return gr.update(choices=discover_agent_tools(agent), value=[])
 
         def update_preloaded_files(crew):
-            return gr.update(value=get_preloaded_files(crew))
+            return gr.update(value=get_preloaded_files(crew), visible=bool(not (get_preloaded_files(crew) == [])))
 
         crewSelection.change(
             fn=update_preloaded_files,
