@@ -16,7 +16,6 @@ def create_ui():
                 preloadedFiles = gr.File(
                     label="Preloaded Files", 
                     file_count="multiple", 
-                    file_types=[".pdf"], 
                     value=get_preloaded_files(discover_available_crews()[0])
                 )
 
