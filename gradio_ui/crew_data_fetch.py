@@ -57,3 +57,12 @@ def extract_variables_from_tasks(crew_name):
                     matches = re.findall(r'\{([^}]+)\}', description)
                     variables.update(matches)
             return sorted(list(variables))
+
+def get_preloaded_files(crew_name):
+    crew_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'crews', crew_name)
+    if os.path.exists(crew_dir):
+        knowledge_dir = os.path.join(crew_dir, 'knowledge')
+        if os.path.exists(knowledge_dir):
+            files = [os.path.join(knowledge_dir, f) for f in os.listdir(knowledge_dir) if os.path.isfile(os.path.join(knowledge_dir, f))]
+            return files
+    return []

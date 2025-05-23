@@ -1,5 +1,5 @@
 from .file_handling import handle_file_upload, handle_file_deletion, handle_files_clear
-from .crew_data_fetch import discover_agent_tools, discover_available_crews, extract_variables_from_tasks
+from .crew_data_fetch import discover_agent_tools, discover_available_crews, extract_variables_from_tasks, get_preloaded_files
 from .get_crew_response import get_crew_response
 import gradio as gr
 import os, shutil
@@ -8,13 +8,21 @@ import os, shutil
 def create_ui():
     with gr.Blocks() as demo:
         gr.Markdown("# CrewAI Demo")
+        uploadedFiles = gr.BrowserState([])
         with gr.Row():
             with gr.Column(scale=1):
-                agentSelection = gr.Dropdown(choices=discover_available_crews(), label="Select Agent", interactive=True, value=discover_available_crews()[0])
+                crewSelection = gr.Dropdown(choices=discover_available_crews(), label="Select Agent", interactive=True, value=discover_available_crews()[0])
                 agentConfig = gr.CheckboxGroup(label="Agent Config", interactive=True, choices=discover_agent_tools(discover_available_crews()[0]))
+                preloadedFiles = gr.File(
+                    label="Preloaded Files", 
+                    file_count="multiple", 
+                    file_types=[".pdf"], 
+                    value=get_preloaded_files(discover_available_crews()[0])
+                )
+
                 files = gr.File(label="Upload Files", file_count="multiple", file_types=[".pdf"])
                 
-                @gr.render(inputs=[agentSelection])
+                @gr.render(inputs=[crewSelection])
                 def render_variable_inputs(agent):
                     variables = extract_variables_from_tasks(agent)
                     userInput = []
@@ -24,7 +32,7 @@ def create_ui():
 
                     submitBtn = gr.Button("Submit")
                     
-                    @submitBtn.click(inputs=userInput + [agentSelection, processLogs, agentConfig], outputs=[output, processLogs])
+                    @submitBtn.click(inputs=userInput + [crewSelection, processLogs, agentConfig], outputs=[output, processLogs])
                     def get_answer(*args):    
                         user_inputs = args[:-3]  # All but last 3 args are user inputs
                         selected_agent = args[-3]  # Second to last is agent selection
@@ -53,31 +61,41 @@ def create_ui():
         def update_agent_config(agent):
             return gr.update(choices=discover_agent_tools(agent))
 
-        def cleanup_knowledge_directories(agent,files,logs):
-            for crew in os.listdir(os.path.join(os.path.dirname(os.path.dirname(__file__)),'crews')):
-                if os.path.exists(os.path.join(os.path.dirname(os.path.dirname(__file__)),'crews',crew,'knowledge')):
-                    shutil.rmtree(os.path.join(os.path.dirname(os.path.dirname(__file__)),'crews',crew,'knowledge'))
+        def cleanup_knowledge_directories(agent,files,logs,uploadedFiles):
+            for file in uploadedFiles:
+                if os.path.exists(file):
+                    os.remove(file)
+            uploadedFiles.clear()
             if files != None:
-                upload_files(files, logs, agent)
+                upload_files(files, logs, agent,uploadedFiles)
 
             return gr.update(choices=discover_agent_tools(agent), value=[])
 
-        agentSelection.change(
-            fn=cleanup_knowledge_directories, 
-            inputs=[agentSelection,files,processLogs], 
-            outputs=agentConfig
+        def update_preloaded_files(crew):
+            return gr.update(value=get_preloaded_files(crew))
+
+        crewSelection.change(
+            fn=update_preloaded_files,
+            inputs=[crewSelection],
+            outputs=[preloadedFiles]
         )
 
-        @files.upload(inputs=[files,processLogs,agentSelection],outputs=processLogs)
-        def upload_files(files,logs,agentSelection):
-            return handle_file_upload(files,logs,agentSelection)
-        
-        @files.delete(inputs=[processLogs,agentSelection], outputs=processLogs)
-        def remove_file(deleted_data: gr.DeletedFileData, logs, agentSelection):
-            return handle_file_deletion(deleted_data, logs, agentSelection)
+        crewSelection.change(
+            fn=cleanup_knowledge_directories, 
+            inputs=[crewSelection, files, processLogs, uploadedFiles], 
+            outputs=[agentConfig]
+        )
 
-        @files.clear(inputs=[processLogs,agentSelection],outputs=processLogs)
-        def remove_all_files(logs,agentSelection):
-            return handle_files_clear(logs,agentSelection)
+        @files.upload(inputs=[files,processLogs,crewSelection,uploadedFiles],outputs=[processLogs,uploadedFiles])
+        def upload_files(files,logs,crewSelection,uploadedFiles):
+            return handle_file_upload(files,logs,crewSelection,uploadedFiles)
+        
+        @files.delete(inputs=[processLogs,crewSelection,uploadedFiles], outputs=[processLogs,uploadedFiles])
+        def remove_file(deleted_data: gr.DeletedFileData, logs, crewSelection,uploadedFiles):
+            return handle_file_deletion(deleted_data, logs, crewSelection,uploadedFiles)
+
+        @files.clear(inputs=[processLogs,crewSelection,uploadedFiles],outputs=[processLogs,uploadedFiles])
+        def remove_all_files(logs,crewSelection,uploadedFiles):
+            return handle_files_clear(logs,crewSelection,uploadedFiles)
 
     return demo 
