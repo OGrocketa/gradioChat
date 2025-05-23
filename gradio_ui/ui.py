@@ -16,7 +16,7 @@ def create_ui():
                 agentSelection = gr.Dropdown(choices=discover_available_crews(), label="Select Agent", interactive=True, value=discover_available_crews()[0])
                 agentConfig = gr.CheckboxGroup(label="Agent Config", interactive=True, choices=discover_agent_tools(discover_available_crews()[0]))
                 files = gr.File(label="Upload Files", file_count="multiple")
-                preloadedFiles = gr.File(label="Preloaded Files", file_count="multiple", value=get_preloaded_files(discover_available_crews()[0]))
+                preloadedFiles = gr.File(label="Preloaded Files", file_count="multiple", value=get_preloaded_files(discover_available_crews()[0]), visible=(len(get_preloaded_files(discover_available_crews()[0])) > 0))
 
                 @gr.render(inputs=[agentSelection])
                 def render_variable_inputs(agent):
@@ -74,7 +74,8 @@ def create_ui():
         )
 
         def update_preloaded_files(agent):
-            return gr.update(value=get_preloaded_files(agent))
+            files = get_preloaded_files(agent)
+            return gr.update(value= files, visible=(len(files) > 0))
         
         agentSelection.change(
             fn=update_preloaded_files,
