@@ -1,0 +1,41 @@
+# Version control
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Logs
+*.log
+
+# Local development
+.env
+.env.local
+.env.*.local
+
+# Documentation
+README.md
+LICENSE
+docs/
+
+# Test files
+tests/
+test/
+*.test.py 

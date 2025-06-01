@@ -1,4 +1,24 @@
-## Installation
+
+## Docker Installation after cloning from Github
+1. Clone the repository:
+```bash
+git clone https://github.com/OGrocketa/gradioChat
+cd gradiochat
+```
+
+2. Build the Docker image:
+```bash
+docker build -t gradio-chat .
+```
+
+3. Run the container:
+```bash
+docker run -it -p 7860:7860 --env-file .env gradio-chat
+```
+
+4. Access the application at http://localhost:7860
+
+## Installation and Manual run
 
 1. Clone the repository:
 ```bash
