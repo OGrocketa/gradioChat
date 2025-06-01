@@ -7,12 +7,12 @@ from crewai.tools import tool
 def google_places_tool(latitude: float, longitude: float, typeOfPlace: str) -> str:
     """
     Returns nearby places of a specific type using Google Places API, near the area provided by the user
-    
+
     Args:
         latitude (float): Latitude of the location
         longitude (float): Longitude of the location
         typeOfPlace (str): Type of place to search for (e.g., 'restaurant', 'museum')
-        
+
     Returns:
         str: JSON string of the API result or error message.
     """
@@ -22,7 +22,7 @@ def google_places_tool(latitude: float, longitude: float, typeOfPlace: str) -> s
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": api_key,
-        "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.googleMapsLinks,places.location,places.priceLevel,places.rating"
+        "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.googleMapsLinks,places.location,places.priceLevel,places.rating",
     }
 
     payload = {
@@ -30,13 +30,10 @@ def google_places_tool(latitude: float, longitude: float, typeOfPlace: str) -> s
         "maxResultCount": 3,
         "locationRestriction": {
             "circle": {
-                "center": {
-                    "latitude": latitude,
-                    "longitude": longitude
-                },
-                "radius": 500.0
+                "center": {"latitude": latitude, "longitude": longitude},
+                "radius": 500.0,
             }
-        }
+        },
     }
 
     response = requests.post(nearby_search_url, headers=headers, json=payload)
@@ -49,7 +46,7 @@ def google_places_tool(latitude: float, longitude: float, typeOfPlace: str) -> s
 
 
 def parse_google_places_tool(tool_output) -> str:
-    result = ''
+    result = ""
     print(type(tool_output))
     for place in tool_output:
         name = place.get("displayName", {}).get("text", "N/A")
@@ -65,7 +62,7 @@ def parse_google_places_tool(tool_output) -> str:
         if price_range != "N/A":
             start_price = price_range.get("startPrice", {})
             end_price = price_range.get("endPrice", {})
-            place_data += f"Price Range: {start_price["units"]} - {end_price["units"]} {start_price["currencyCode"]}\n"
+            place_data += f"Price Range: {start_price['units']} - {end_price['units']} {start_price['currencyCode']}\n"
 
         result += place_data + "\n"
 

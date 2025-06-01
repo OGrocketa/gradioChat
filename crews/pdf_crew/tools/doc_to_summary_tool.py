@@ -18,24 +18,31 @@ def doc_to_summary_tool() -> str:
       - A combined summary of all the chunks.
     """
     summaries = []
-    source = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "crews", "pdf_crew", "knowledge")
-    llm = ChatOpenAI(model= "gpt-4o-mini",max_retries=2, temperature=0.5 )
+    source = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
+        "crews",
+        "pdf_crew",
+        "knowledge",
+    )
+    llm = ChatOpenAI(model="gpt-4o-mini", max_retries=2, temperature=0.5)
 
     for filename in os.listdir(source):
         if not filename.lower().endswith(".pdf"):
             continue
-        
-        file_path = os.path.join(source,filename)
+
+        file_path = os.path.join(source, filename)
         if os.path.isdir(file_path):
             continue
-        
+
         try:
             options = PdfPipelineOptions()
             options.generate_page_images = True
-            
-            converter = DocumentConverter(format_options={
-                InputFormat.PDF: PdfFormatOption(pipeline_options=options)
-            })
+
+            converter = DocumentConverter(
+                format_options={
+                    InputFormat.PDF: PdfFormatOption(pipeline_options=options)
+                }
+            )
 
             result = converter.convert(file_path)
             mdFile = result.document.export_to_markdown()

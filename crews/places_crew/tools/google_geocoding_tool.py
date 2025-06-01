@@ -2,6 +2,7 @@ import os
 import requests
 from crewai.tools import tool
 
+
 @tool("Google Geocoding Tool")
 def google_geocoding_tool(address: str) -> str:
     """
@@ -11,7 +12,7 @@ def google_geocoding_tool(address: str) -> str:
     url = "https://maps.googleapis.com/maps/api/geocode/json"
 
     params = {
-        "address":address,
+        "address": address,
         "key": api_key,
     }
 

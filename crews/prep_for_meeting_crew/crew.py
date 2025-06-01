@@ -54,7 +54,6 @@ class PrepForMeetingCrew:
         return Task(
             config=self.tasks_config["research_task"],
             agent=self.lead_researcher_agent(),
-            
         )
 
     @task
