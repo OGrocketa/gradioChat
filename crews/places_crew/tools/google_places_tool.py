@@ -1,6 +1,6 @@
-import requests, json, os
+import requests
+import os
 from crewai.tools import tool
-import json
 
 
 @tool("Google Places Nearby Search")

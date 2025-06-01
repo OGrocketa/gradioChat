@@ -2,7 +2,7 @@ from .file_handling import handle_file_upload, handle_file_deletion, handle_file
 from .crew_data_fetch import discover_agent_tools, discover_available_crews, extract_variables_from_tasks, get_preloaded_files
 from .get_crew_response import get_crew_response
 import gradio as gr
-import os, shutil
+import os
 
 
 def create_ui():
@@ -62,7 +62,7 @@ def create_ui():
                 if os.path.exists(file):
                     os.remove(file)
             uploadedFiles.clear()
-            if files != None:
+            if files is not None:
                 upload_files(files, logs, agent,uploadedFiles)
 
             return gr.update(choices=discover_agent_tools(agent), value=[]), uploadedFiles

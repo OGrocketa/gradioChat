@@ -8,7 +8,7 @@ def google_geocoding_tool(address: str) -> str:
     Tool to transform users query: {input} to the coordinates and typeOfPlace
     """
     api_key = os.environ["GOOGLE_PLACES_API_KEY"]
-    url = f"https://maps.googleapis.com/maps/api/geocode/json"
+    url = "https://maps.googleapis.com/maps/api/geocode/json"
 
     params = {
         "address":address,
