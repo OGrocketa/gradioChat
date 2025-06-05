@@ -6,3 +6,4 @@ db
 pdfs
 .gradio
 report.md
+.ruff_cache
