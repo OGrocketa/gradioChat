@@ -43,7 +43,7 @@ poetry shell
 poetry run python main.py
 ```
 
-2. Open your web browser and navigate to the URL shown in the terminal (typically http://localhost:7860)
+2. Open your web browser and navigate to the URL shown in the terminal (http://localhost:7860)
 
 ## Adding Custom Crews
 
