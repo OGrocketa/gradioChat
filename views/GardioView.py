@@ -1,0 +1,2 @@
+class GradioView:
+    pass
