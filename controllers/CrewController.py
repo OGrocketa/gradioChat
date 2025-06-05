@@ -1,10 +1,8 @@
 import importlib
 import os
-from ..models import CrewModel
+from models import CrewModel
 
 class CrewController:
-    def __init__(self):
-        pass
 
     def get_crew_response(self, *args):
         """
@@ -84,5 +82,3 @@ class CrewController:
                 yield (None, "No response from crew")
         except Exception as e:
             yield (None, f"Error processing query: {str(e)}")
-
-print(CrewController().get_crew_response("Im looking for the best pizza in warsaw under 10$", "places_crew","",["google_geocoding_tool","google_places_tool"]))
