@@ -1,35 +1,37 @@
-from .file_handling import handle_file_upload, handle_file_deletion, handle_files_clear
+import os
+
+import gradio as gr
+
 from .crew_data_fetch import (
     discover_agent_tools,
     discover_available_crews,
     extract_variables_from_tasks,
     get_preloaded_files,
 )
+from .file_handling import handle_file_deletion, handle_file_upload, handle_files_clear
 from .get_crew_response import get_crew_response
-import gradio as gr
-import os
 
 
 def create_ui():
     with gr.Blocks() as demo:
         gr.Markdown("# CrewAI Demo")
-        uploadedFiles = gr.BrowserState([])
+        uploaded_files = gr.BrowserState([])
 
         with gr.Row():
             with gr.Column(scale=1):
-                agentSelection = gr.Dropdown(
+                agent_selection = gr.Dropdown(
                     choices=discover_available_crews(),
                     label="Select Agent",
                     interactive=True,
                     value=discover_available_crews()[0],
                 )
-                agentConfig = gr.CheckboxGroup(
+                agent_config = gr.CheckboxGroup(
                     label="Agent Config",
                     interactive=True,
                     choices=discover_agent_tools(discover_available_crews()[0]),
                 )
                 files = gr.File(label="Upload Files", file_count="multiple")
-                preloadedFiles = gr.File(
+                preloaded_files = gr.File(
                     label="Preloaded Files",
                     file_count="multiple",
                     value=get_preloaded_files(discover_available_crews()[0]),
@@ -38,19 +40,19 @@ def create_ui():
                     ),
                 )
 
-                @gr.render(inputs=[agentSelection])
+                @gr.render(inputs=[agent_selection])
                 def render_variable_inputs(agent):
                     variables = extract_variables_from_tasks(agent)
-                    userInput = []
+                    user_input = []
                     for var in variables:
                         textbox = gr.Textbox(label=var)
-                        userInput.append(textbox)
+                        user_input.append(textbox)
 
-                    submitBtn = gr.Button("Submit")
+                    submit_btn = gr.Button("Submit")
 
-                    @submitBtn.click(
-                        inputs=userInput + [agentSelection, processLogs, agentConfig],
-                        outputs=[output, processLogs],
+                    @submit_btn.click(
+                        inputs=user_input + [agent_selection, process_logs, agent_config],
+                        outputs=[output, process_logs],
                     )
                     def get_answer(*args):
                         user_inputs = args[:-3]  # All but last 3 args are user inputs
@@ -75,7 +77,7 @@ def create_ui():
                         yield final_response, current_logs
 
             with gr.Column(scale=2):
-                processLogs = gr.Textbox(
+                process_logs = gr.Textbox(
                     lines=5, label="Logs", autoscroll=True, interactive=False
                 )
                 output = gr.Textbox(lines=5, label="Output Box")
@@ -83,57 +85,51 @@ def create_ui():
         def update_agent_config(agent):
             return gr.update(choices=discover_agent_tools(agent))
 
-        def relocate_files(agent, files, logs, uploadedFiles):
-            for file in uploadedFiles:
+        def relocate_files(agent, files, logs, uploaded_files):
+            for file in uploaded_files:
                 if os.path.exists(file):
                     os.remove(file)
-            uploadedFiles.clear()
+            uploaded_files.clear()
             if files is not None:
-                upload_files(files, logs, agent, uploadedFiles)
+                upload_files(files, logs, agent, uploaded_files)
 
             return gr.update(
                 choices=discover_agent_tools(agent), value=[]
-            ), uploadedFiles
+            ), uploaded_files
 
-        agentSelection.change(
+        agent_selection.change(
             fn=relocate_files,
-            inputs=[agentSelection, files, processLogs, uploadedFiles],
-            outputs=[agentConfig, uploadedFiles],
+            inputs=[agent_selection, files, process_logs, uploaded_files],
+            outputs=[agent_config, uploaded_files],
         )
 
         def update_preloaded_files(agent):
             files = get_preloaded_files(agent)
             return gr.update(value=files, visible=(len(files) > 0))
 
-        agentSelection.change(
-            fn=update_preloaded_files, inputs=[agentSelection], outputs=[preloadedFiles]
+        agent_selection.change(
+            fn=update_preloaded_files, inputs=[agent_selection], outputs=[preloaded_files]
         )
 
         @files.upload(
-            inputs=[files, processLogs, agentSelection, uploadedFiles],
-            outputs=[processLogs, uploadedFiles],
+            inputs=[files, process_logs, agent_selection, uploaded_files],
+            outputs=[process_logs, uploaded_files],
         )
-        def upload_files(files, logs, agentSelection, uploadedFiles):
-            response = handle_file_upload(files, logs, agentSelection, uploadedFiles)
-            return response
+        def upload_files(files, logs, agent_selection, uploaded_files):
+            return handle_file_upload(files, logs, agent_selection, uploaded_files)
 
         @files.delete(
-            inputs=[processLogs, agentSelection, uploadedFiles],
-            outputs=[processLogs, uploadedFiles],
+            inputs=[process_logs, uploaded_files],
+            outputs=[process_logs, uploaded_files],
         )
-        def remove_file(
-            deleted_data: gr.DeletedFileData, logs, agentSelection, uploadedFiles
-        ):
-            response = handle_file_deletion(
-                deleted_data, logs, agentSelection, uploadedFiles
-            )
-            return response
+        def remove_file(deleted_data: gr.DeletedFileData, logs, uploaded_files):
+            return handle_file_deletion(deleted_data, logs, uploaded_files)
 
         @files.clear(
-            inputs=[processLogs, agentSelection, uploadedFiles],
-            outputs=[processLogs, uploadedFiles],
+            inputs=[process_logs, uploaded_files],
+            outputs=[process_logs, uploaded_files],
         )
-        def remove_all_files(logs, agentSelection, uploadedFiles):
-            return handle_files_clear(logs, agentSelection, uploadedFiles)
+        def remove_all_files(logs, uploaded_files):
+            return handle_files_clear(logs, uploaded_files)
 
     return demo

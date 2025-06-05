@@ -1,5 +1,6 @@
 import os
 import re
+
 import yaml
 
 
@@ -25,7 +26,7 @@ def discover_agent_tools(agent_name):
                     tool_name = file.replace(".py", "").replace("_", " ").title()
                     tools.append(tool_name)
     except Exception as e:
-        print(f"Error discovering tools for {agent_name}: {str(e)}")
+        raise e
 
     return sorted(tools)
 
@@ -45,7 +46,7 @@ def discover_available_crews():
             if os.path.isdir(os.path.join(crews_dir, file)) and file != "__pycache__":
                 crews.append(file)
     except Exception as e:
-        print(f"Error discovering crews: {str(e)}")
+        raise e
 
     return sorted(crews)
 
@@ -58,7 +59,7 @@ def extract_variables_from_tasks(crew_name):
     tasks_file = os.path.join(crew_dir, "config", "tasks.yaml")
 
     if os.path.exists(tasks_file):
-        with open(tasks_file, "r") as f:
+        with open(tasks_file) as f:
             tasks = yaml.safe_load(f)
             variables = set()
             for task in tasks.values():
@@ -66,7 +67,7 @@ def extract_variables_from_tasks(crew_name):
                     matches = re.findall(r"\{([^}]+)\}", description)
                     variables.update(matches)
             return sorted(list(variables))
-
+    return []
 
 def get_preloaded_files(agent_name):
     """

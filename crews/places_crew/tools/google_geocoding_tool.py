@@ -1,4 +1,5 @@
 import os
+
 import requests
 from crewai.tools import tool
 
@@ -18,10 +19,6 @@ def google_geocoding_tool(address: str) -> str:
 
     response = requests.get(url, params=params)
 
-    if response.status_code == 200:
-        result = response.json()
-        if result["results"]:
-            coordinates = result["results"][0]["geometry"]["location"]
-            return coordinates
-    else:
-        return {"error": response.status_code, "message": response.text}
+    result = response.json()
+
+    return result["results"][0]["geometry"]["location"]

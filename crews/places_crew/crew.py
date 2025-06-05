@@ -1,4 +1,4 @@
-from crewai import Agent, Crew, Task, Process
+from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 
 

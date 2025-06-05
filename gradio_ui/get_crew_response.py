@@ -1,5 +1,6 @@
-import os
 import importlib
+import os
+
 from .crew_data_fetch import extract_variables_from_tasks
 
 
@@ -8,65 +9,63 @@ def get_crew_response(*args):
     Handle the crew's response to a user query.
 
     Args:
-        userInput (str): The user's query
-        agentSelection (str): The selected agent type
-        processLogs (str): Current process logs
-        agentConfig (list): List of selected agent configurations
+        user_input (str): The user's query
+        agent_selection (str): The selected agent type
+        process_logs (str): Current process logs
+        agent_config (list): List of selected agent configurations
 
     Yields:
         tuple: (response, logs) containing the crew's response and updated logs
     """
-    # input: userInput + agentSelection, processLogs, agentConfig
-    userInput = args[:-3]
-    agentSelection = args[-3]
-    processLogs = args[-2]
-    agentConfig = args[-1]
+    # input: user_input + agent_selection, process_logs, agent_config
+    user_input = args[:-3]
+    agent_selection = args[-3]
+    process_logs = args[-2]
+    agent_config = args[-1]
 
     inputs = dict()
 
-    if not userInput:
+    if not user_input:
         yield (None, "Please enter a query.")
         return
 
-    if agentSelection == "Select an agent":
+    if agent_selection == "Select an agent":
         yield (None, "Please select an agent.")
         return
 
-    variables = extract_variables_from_tasks(agentSelection)
+    variables = extract_variables_from_tasks(agent_selection)
     if variables:
-        count = 0
-        for variable in variables:
-            inputs.update({variable: userInput[count]})
-            count += 1
+        for count, variable in enumerate(variables):
+            inputs.update({variable: user_input[count]})
 
     try:
-        accumulated_logs = processLogs
+        accumulated_logs = process_logs
 
         try:
-            crew_module = importlib.import_module(f"crews.{agentSelection}.crew")
+            crew_module = importlib.import_module(f"crews.{agent_selection}.crew")
             # (exmaple) pdf_crew -> PdfCrew
             crew_class_name = "".join(
-                word.capitalize() for word in agentSelection.split("_")
+                word.capitalize() for word in agent_selection.split("_")
             )
             crew_class = getattr(crew_module, crew_class_name)
             crew = crew_class().crew()
         except (ImportError, AttributeError) as e:
-            yield (None, f"Error loading crew {agentSelection}: {str(e)}")
+            yield (None, f"Error loading crew {agent_selection}: {str(e)}")
             return
 
         # by default all tools are added to the first agent
         if crew.agents:
             first_agent = crew.agents[0]
 
-            if agentConfig:
+            if agent_config:
                 tools_dir = os.path.join(
                     os.path.dirname(os.path.dirname(__file__)),
                     "crews",
-                    agentSelection,
+                    agent_selection,
                     "tools",
                 )
                 if os.path.exists(tools_dir):
-                    for tool_name in agentConfig:
+                    for tool_name in agent_config:
                         # (exmaple) Doc To Summary Tool -> doc_to_summary_tool.py
                         tool_file = tool_name.lower().replace(" ", "_") + ".py"
                         tool_path = os.path.join(tools_dir, tool_file)
@@ -74,7 +73,7 @@ def get_crew_response(*args):
                         if os.path.exists(tool_path):
                             try:
                                 tool_module = importlib.import_module(
-                                    f"crews.{agentSelection}.tools.{tool_file[:-3]}"
+                                    f"crews.{agent_selection}.tools.{tool_file[:-3]}"
                                 )
                                 tool_func_name = tool_file[
                                     :-3
@@ -83,7 +82,7 @@ def get_crew_response(*args):
 
                                 first_agent.tools.append(tool_func)
                                 accumulated_logs += (
-                                    f"\n- Added {tool_name} to {agentSelection}"
+                                    f"\n- Added {tool_name} to {agent_selection}"
                                 )
                             except Exception as e:
                                 accumulated_logs += (

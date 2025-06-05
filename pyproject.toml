@@ -27,3 +27,33 @@ type = "crew"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.11.12"
 
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+lint.select = [
+    "E",        # pycodestyle errors: https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "W",        # pycodestyle warnings: https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "F",        # pyflakes: https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "I",        # issort: https://docs.astral.sh/ruff/rules/#isort-i
+    "N",        # pep8-naming: https://docs.astral.sh/ruff/rules/#pep8-naming-n
+    "UP",       # pyupgrade: https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    "ARG001",   # flake8 - unused function argument: https://docs.astral.sh/ruff/rules/#flake8-unused-arguments-arg
+    "RSE",      # flake8 - unnecessary parentheses on raised exception: https://docs.astral.sh/ruff/rules/#flake8-raise-rse
+    "RET",      # flake8 - return: https://docs.astral.sh/ruff/rules/#flake8-return-ret
+    "SIM",      # flake8 - simplify: https://docs.astral.sh/ruff/rules/#flake8-simplify-sim
+    "PIE",      # flake8: https://docs.astral.sh/ruff/rules/#flake8-pie-pie
+    "T20",      # flake8 - print found: https://docs.astral.sh/ruff/rules/#flake8-print-t20
+    "ERA",      # eradicate - commented out code: https://docs.astral.sh/ruff/rules/#eradicate-era
+    "FAST",     # FastAPI checks: https://docs.astral.sh/ruff/rules/#fastapi-fast
+]
+lint.ignore = [
+    "N802", # Function name should be lowercase. Stick to gRPC generation tools -> use PascalCase methods.
+    "N805", # First argument of a method should be named `self`. Conflict with Pydantic validators.
+    "N999", # Invalid module name. Alembic autogenerate `incorrect` migrations.
+    "W191", # Indentation contains tabs
+]
+
+exclude = [
+    "crews/crewai_enterprise_content_marketing_ideas_crew/*",
+    "crews/prep_for_meeting_crew/*",
+]

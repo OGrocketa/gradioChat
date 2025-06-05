@@ -1,10 +1,11 @@
+import os
+
 from crewai.tools import tool
 from docling.datamodel.base_models import InputFormat
-from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.pipeline_options import PdfPipelineOptions
-from langchain_openai import ChatOpenAI
+from docling.document_converter import DocumentConverter, PdfFormatOption
 from langchain_core.messages import HumanMessage
-import os
+from langchain_openai import ChatOpenAI
 
 
 @tool("DocToSummaryTool")
@@ -45,9 +46,9 @@ def doc_to_summary_tool() -> str:
             )
 
             result = converter.convert(file_path)
-            mdFile = result.document.export_to_markdown()
+            md_file = result.document.export_to_markdown()
 
-            prompt = f"Summarize the following document:\n\n{mdFile}"
+            prompt = f"Summarize the following document:\n\n{md_file}"
             response = llm.invoke([HumanMessage(content=prompt)])
             summary = f"File name: {filename}", response.content.strip()
             summaries.append(summary)

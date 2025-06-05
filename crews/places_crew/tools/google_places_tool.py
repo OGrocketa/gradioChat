@@ -1,17 +1,18 @@
-import requests
 import os
+
+import requests
 from crewai.tools import tool
 
 
 @tool("Google Places Nearby Search")
-def google_places_tool(latitude: float, longitude: float, typeOfPlace: str) -> str:
+def google_places_tool(latitude: float, longitude: float, type_of_place: str) -> str:
     """
     Returns nearby places of a specific type using Google Places API, near the area provided by the user
 
     Args:
         latitude (float): Latitude of the location
         longitude (float): Longitude of the location
-        typeOfPlace (str): Type of place to search for (e.g., 'restaurant', 'museum')
+        type_of_place (str): Type of place to search for (e.g., 'restaurant', 'museum')
 
     Returns:
         str: JSON string of the API result or error message.
@@ -22,11 +23,15 @@ def google_places_tool(latitude: float, longitude: float, typeOfPlace: str) -> s
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": api_key,
-        "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.googleMapsLinks,places.location,places.priceLevel,places.rating",
+        "X-Goog-FieldMask": (
+            "places.displayName,places.formattedAddress,"
+            "places.googleMapsLinks,places.location,"
+            "places.priceLevel,places.rating"
+        ),
     }
 
     payload = {
-        "includedTypes": [typeOfPlace],
+        "includedTypes": [type_of_place],
         "maxResultCount": 3,
         "locationRestriction": {
             "circle": {
@@ -38,16 +43,11 @@ def google_places_tool(latitude: float, longitude: float, typeOfPlace: str) -> s
 
     response = requests.post(nearby_search_url, headers=headers, json=payload)
 
-    if response.status_code == 200:
-        parsed_data = parse_google_places_tool(response.json()["places"])
-        return parsed_data
-    else:
-        return f"Error {response.status_code}: {response.text}"
+    return parse_google_places_tool(response.json()["places"])
 
 
 def parse_google_places_tool(tool_output) -> str:
     result = ""
-    print(type(tool_output))
     for place in tool_output:
         name = place.get("displayName", {}).get("text", "N/A")
         address = place.get("formattedAddress", "N/A")
@@ -56,7 +56,9 @@ def parse_google_places_tool(tool_output) -> str:
         price_level = place.get("priceLevel", "N/A")
         price_range = place.get("priceRange", "N/A")
 
-        place_data = f"Name: {name} \nAddress: {address} \nGoogle Maps Rating: {rating} \nGoogle Maps Link: {maps_uri}\n"
+        place_data = (
+            f"Name: {name} \nAddress: {address} \nGoogle Maps Rating: {rating} \nGoogle Maps Link: {maps_uri}\n"
+        )
         place_data += f"Price Level: {price_level}\n"
 
         if price_range != "N/A":

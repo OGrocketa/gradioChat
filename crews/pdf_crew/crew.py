@@ -5,12 +5,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 @CrewBase
-class PdfCrew():
+class PdfCrew:
 	"""PdfCrew crew"""
 
 	agents_config = 'config/agents.yaml'
 	tasks_config = 'config/tasks.yaml'
-	
 
 	@agent
 	def data_extractor(self) -> Agent:
@@ -26,7 +25,7 @@ class PdfCrew():
 		return Agent(
 			config=self.agents_config['data_summarizer'],
 		)
-	
+
 	@task
 	def research_task(self) -> Task:
 		return Task(
@@ -40,7 +39,7 @@ class PdfCrew():
 			config=self.tasks_config['summarize_data'],
 			max_iter=1,
 		)
-	
+
 	@crew
 	def crew(self) -> Crew:
 		"""Creates the PdfCrew crew"""
