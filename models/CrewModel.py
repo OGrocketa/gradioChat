@@ -9,6 +9,7 @@ class CrewModel:
             self,
             crew_name=None,
             full_crew_path=None,
+            tools_dir=None,
             tools_names=None,
             crew_tools_full_paths=None,
             tasks_variables=None,
@@ -16,6 +17,7 @@ class CrewModel:
 
         self.crew_name = crew_name
         self.full_crew_path = full_crew_path
+        self.tools_dir = tools_dir
         self.tools_names = tools_names
         self.crew_tools_full_paths = crew_tools_full_paths
         self.tasks_variables = tasks_variables
@@ -39,19 +41,19 @@ class CrewModel:
         return []
 
     @staticmethod
-    def discover_agent_tools(agent_name):
+    def discover_agent_tools(crew_name):
         """
         Discover available tools for a specific agent.
 
         Args:
-            agent_name (str): Name of the agent to discover tools for
+            crew_name (str): Name of the agent to discover tools for
 
         Returns:
             list: Sorted list of available tool names
         """
         tool_names = []
         tool_full_paths = []
-        tools_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", agent_name, "tools")
+        tools_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", crew_name, "tools")
 
         try:
             if os.path.exists(tools_dir):
@@ -63,7 +65,7 @@ class CrewModel:
         except Exception as e:
             raise e
 
-        return sorted(tool_names), sorted(tool_full_paths)
+        return sorted(tool_names), sorted(tool_full_paths),tools_dir
 
     @staticmethod
     def get_preloaded_files(agent_name):
@@ -97,11 +99,12 @@ class CrewModel:
             crew_name = crew
             full_crew_path = os.path.join(crews_paths, crew)
             tasks_variables = cls.get_tasks_variables(crew_name)
-            tools_names, tools_full_paths = cls.discover_agent_tools(crew_name)
+            tools_names, tools_full_paths,tools_dir = cls.discover_agent_tools(crew_name)
             preloaded_files_full_path = cls.get_preloaded_files(crew_name)
 
             new_crew = cls(crew_name,
                            full_crew_path,
+                           tools_dir,
                            tools_names,
                            tools_full_paths,
                            tasks_variables,
@@ -109,3 +112,12 @@ class CrewModel:
 
             available_crews.append(new_crew)
         return available_crews
+
+    @classmethod
+    def get_crew(cls, crew_name):
+        full_crew_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", crew_name)
+        tools_names, crew_tools_full_paths,tools_dir=cls.discover_agent_tools(crew_name)
+        tasks_variables=cls.get_tasks_variables(crew_name) 
+        preloaded_files_full_path=cls.get_preloaded_files(crew_name) 
+        crew = cls(crew_name,full_crew_path, tools_dir, tools_names, crew_tools_full_paths, tasks_variables, preloaded_files_full_path)
+        return crew
