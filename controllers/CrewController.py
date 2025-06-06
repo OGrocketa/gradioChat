@@ -1,7 +1,6 @@
 # controllers/crew_controller.py
 import importlib
 import os
-from typing import Dict, Generator, Tuple, Any
 
 from models.CrewModel import CrewModel
 
@@ -9,8 +8,7 @@ from models.CrewModel import CrewModel
 class CrewController:
 
     def __init__(self) -> None:
-        # {crew_name: CrewModel}
-        self._model_cache: Dict[str, CrewModel] = {}
+        self._model_cache: dict[str, CrewModel] = {}
 
     def _get_model(self, crew_name: str) -> CrewModel:
         if crew_name not in self._model_cache:
@@ -37,7 +35,7 @@ class CrewController:
             args[-2],
             args[-1],
         )
-        inputs: Dict[str, str] = {}
+        inputs: dict[str, str] = {}
 
 
         if not user_input:

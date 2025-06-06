@@ -117,7 +117,11 @@ class CrewModel:
     def get_crew(cls, crew_name):
         full_crew_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), "crews", crew_name)
         tools_names, crew_tools_full_paths,tools_dir=cls.discover_agent_tools(crew_name)
-        tasks_variables=cls.get_tasks_variables(crew_name) 
-        preloaded_files_full_path=cls.get_preloaded_files(crew_name) 
-        crew = cls(crew_name,full_crew_path, tools_dir, tools_names, crew_tools_full_paths, tasks_variables, preloaded_files_full_path)
-        return crew
+        tasks_variables=cls.get_tasks_variables(crew_name)
+        preloaded_files_full_path=cls.get_preloaded_files(crew_name)
+        return cls(crew_name,
+                   full_crew_path,tools_dir,
+                   tools_names,
+                   crew_tools_full_paths,
+                   tasks_variables,
+                   preloaded_files_full_path)
