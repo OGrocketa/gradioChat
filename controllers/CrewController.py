@@ -15,6 +15,19 @@ class CrewController:
             self._model_cache[crew_name] = CrewModel.get_crew(crew_name)
         return self._model_cache[crew_name]
 
+    def list_crews(self) -> list[str]:
+        return [m.crew_name for m in CrewModel.get_available_crews()]
+
+    def list_tools(self, crew_name: str) -> list[str]:
+        tools, _, _ = CrewModel.discover_agent_tools(crew_name)
+        return tools
+
+    def task_variables(self, crew_name: str) -> list[str]:
+        return CrewModel.get_tasks_variables(crew_name)
+
+    def preloaded_files(self, crew_name: str) -> list[str]:
+        return CrewModel.get_preloaded_files(crew_name)
+
     def get_crew_response(self, *args):
         """
         Handle the crew's response to a user query.

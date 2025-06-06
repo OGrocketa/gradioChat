@@ -2,10 +2,16 @@ import os
 import shutil
 
 from gradio_ui.ui import create_ui
+from views import GradioView
+
+
+
+
+
 
 try:
-    demo = create_ui()
-    demo.launch(server_name="0.0.0.0")
+    gradio_view = GradioView()
+    gradio_view.launch("0.0.0.0")
 except Exception as e:
     raise e
 finally:
