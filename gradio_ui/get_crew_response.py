@@ -12,17 +12,16 @@ def get_crew_response(*args):
         user_input (str): The user's query
         agent_selection (str): The selected agent type
         process_logs (str): Current process logs
-        agent_config (list): List of selected agent configurations
+        crew_tools (list): List of selected agent configurations
 
     Yields:
         tuple: (response, logs) containing the crew's response and updated logs
     """
-    # input: user_input + agent_selection, process_logs, agent_config
+    # input: user_input + agent_selection, process_logs, crew_tools
     user_input = args[:-3]
     agent_selection = args[-3]
     process_logs = args[-2]
-    agent_config = args[-1]
-
+    crew_tools = args[-1]
     inputs = dict()
 
     if not user_input:
@@ -57,7 +56,7 @@ def get_crew_response(*args):
         if crew.agents:
             first_agent = crew.agents[0]
 
-            if agent_config:
+            if crew_tools:
                 tools_dir = os.path.join(
                     os.path.dirname(os.path.dirname(__file__)),
                     "crews",
@@ -65,7 +64,7 @@ def get_crew_response(*args):
                     "tools",
                 )
                 if os.path.exists(tools_dir):
-                    for tool_name in agent_config:
+                    for tool_name in crew_tools:
                         # (exmaple) Doc To Summary Tool -> doc_to_summary_tool.py
                         tool_file = tool_name.lower().replace(" ", "_") + ".py"
                         tool_path = os.path.join(tools_dir, tool_file)

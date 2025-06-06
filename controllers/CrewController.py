@@ -1,84 +1,105 @@
+# controllers/crew_controller.py
 import importlib
 import os
-from models import CrewModel
+from typing import Dict, Generator, Tuple, Any
+
+from models.CrewModel import CrewModel
+
 
 class CrewController:
+
+    def __init__(self) -> None:
+        # {crew_name: CrewModel}
+        self._model_cache: Dict[str, CrewModel] = {}
+
+    def _get_model(self, crew_name: str) -> CrewModel:
+        if crew_name not in self._model_cache:
+            self._model_cache[crew_name] = CrewModel.get_crew(crew_name)
+        return self._model_cache[crew_name]
 
     def get_crew_response(self, *args):
         """
         Handle the crew's response to a user query.
-        Args:
-            user_input (str): The user's query
-            crew_selection (str): The selected crew type
-            process_logs (str): Current process logs
-            agent_config (list): List of selected agent configurations
-        Yields:
-            tuple: (response, logs) containing the crew's response and updated logs
-        """
-        user_input = args[:-3]
-        crew_selection = args[-3]
-        process_logs = args[-2]
-        agent_config = args[-1]
-    
 
-        inputs = dict()
+        Args:
+            user_input (str):                The user's query               (args[:-3])
+            agent_selection (str):           The selected crew/agent type   (args[-3])
+            process_logs (str):              Current process logs           (args[-2])
+            crew_tools (list[str] | None):   Selected extra tool names      (args[-1])
+
+        Yields:
+            tuple(response, logs)
+        """
+
+        user_input, agent_selection, process_logs, crew_tools = (
+            args[:-3],
+            args[-3],
+            args[-2],
+            args[-1],
+        )
+        inputs: Dict[str, str] = {}
+
 
         if not user_input:
             yield (None, "Please enter a query.")
             return
 
-        if crew_selection == "Select an agent":
+        if agent_selection == "Select an agent":
             yield (None, "Please select an agent.")
             return
-        
-        crew_model = CrewModel.get_crew(crew_selection)
-        variables = crew_model.tasks_variables
-        if variables:
-            for count, variable in enumerate(variables):
-                inputs.update({variable: user_input[count]})
+
+        crew_model = self._get_model(agent_selection)
+
+        if crew_model.tasks_variables:
+            for count, var in enumerate(crew_model.tasks_variables):
+                    inputs[var] = user_input[count]
+
+        accumulated_logs = process_logs
 
         try:
-            accumulated_logs = process_logs
-            try:
-                crew_module = importlib.import_module(f"crews.{crew_selection}.crew")
-                # (exmaple) pdf_crew -> PdfCrew
-                crew_class_name = "".join(word.capitalize() for word in crew_selection.split("_"))
-                crew_class = getattr(crew_module, crew_class_name)
-                crew = crew_class().crew()
-            except (ImportError, AttributeError) as e:
-                yield (None, f"Error loading crew {crew_selection}: {str(e)}")
-                return
+            crew_module = importlib.import_module(f"crews.{agent_selection}.crew")
+            crew_class_name = "".join(word.capitalize() for word in agent_selection.split("_"))
+            crew_class = getattr(crew_module, crew_class_name)
+            crew_obj = crew_class().crew()
+        except (ImportError, AttributeError) as e:
+            yield (None, f"Error loading crew {agent_selection}: {e}")
+            return
 
-            # by default all tools are added to the first agent
-            if crew.agents:
-                first_agent = crew.agents[0]
-                if agent_config and crew_model.tools_names and crew_model.crew_tools_full_paths:
-                    tool_name_to_path = dict(zip(crew_model.tools_names, crew_model.crew_tools_full_paths))
-                    for tool_name in agent_config:
-                        tool_path = tool_name_to_path.get(tool_name)
-                        if tool_path and os.path.exists(tool_path):
-                            try:
-                                tool_module_name = os.path.splitext(os.path.basename(tool_path))[0]
-                                tool_module = importlib.import_module(
-                                    f"crews.{crew_selection}.tools.{tool_module_name}"
-                                )
-                                tool_func = getattr(tool_module, tool_module_name)
-                                first_agent.tools.append(tool_func)
-                                accumulated_logs += (
-                                    f"\n- Added {tool_name} to {crew_selection}"
-                                )
-                            except Exception as e:
-                                accumulated_logs += (
-                                    f"\n- Error adding {tool_name}: {str(e)}"
-                                )
-                    yield (None, accumulated_logs)
-            accumulated_logs += "\n- Thinking on the answer..."
-            yield (None, accumulated_logs)
-            response = crew.kickoff(inputs=inputs)
-            if response:
-                accumulated_logs += "\n- Answer is ready"
-                yield (response, accumulated_logs)
-            else:
-                yield (None, "No response from crew")
+        if crew_obj.agents:
+            first_agent = crew_obj.agents[0]
+
+            if crew_tools:
+                for tool_name in crew_tools:
+                    try:
+                        tool_index = crew_model.tools_names.index(tool_name)
+                        tool_file_path = crew_model.crew_tools_full_paths[tool_index]
+                        tool_module_name = os.path.splitext(os.path.basename(tool_file_path))[0]
+
+                        tool_module = importlib.import_module(
+                            f"crews.{agent_selection}.tools.{tool_module_name}"
+                        )
+                        tool_func = getattr(tool_module, tool_module_name)
+
+                        first_agent.tools.append(tool_func)
+                        accumulated_logs += f"\n- Added {tool_name} to {agent_selection}"
+                    except ValueError:
+                        accumulated_logs += f"\n- Tool {tool_name} not found for {agent_selection}"
+                    except Exception as e:
+                        accumulated_logs += f"\n- Error adding {tool_name}: {e}"
+
+                yield (None, accumulated_logs)
+
+        accumulated_logs += "\n- Thinking on the answer..."
+        yield (None, accumulated_logs)
+
+        try:
+            response = crew_obj.kickoff(inputs=inputs)
         except Exception as e:
-            yield (None, f"Error processing query: {str(e)}")
+            yield (None, f"Error processing query: {e}")
+            return
+
+        if response:
+            accumulated_logs += "\n- Answer is ready"
+            yield (response, accumulated_logs)
+        else:
+            yield (None, "No response from crew")
