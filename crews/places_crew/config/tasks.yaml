@@ -47,8 +47,6 @@ reporting_task:
      do not anything from your knowledge </important>
   expected_output: >
     A structured final report in the md format summarizing all research findings clearly and concisely.
-    The final report should contain all the information from the other tasks.
-    reddit_task, tavily_task, places_api_task
 
     user should visible see from where the information comes from.
   agent: places_api_agent

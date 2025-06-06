@@ -17,9 +17,14 @@ class GradioView:
         crew_names = self.crew_controller.list_crews()
         default_crew = crew_names[0] if crew_names else None
 
-        _agent_tools     = self.crew_controller.list_tools
-        _preloaded_files = self.crew_controller.preloaded_files
-        _task_vars       = self.crew_controller.task_variables
+        def get_agent_tools(crew_name: str) -> list[str]:
+            return self.crew_controller.list_tools(crew_name)
+
+        def get_preloaded_files(crew_name: str) -> list[str]:
+            return self.crew_controller.preloaded_files(crew_name)
+
+        def get_task_vars(crew_name: str) -> list[str]:
+            return self.crew_controller.task_variables(crew_name)
 
         with gr.Blocks() as demo:
             gr.Markdown("# CrewAI Demo")
@@ -37,7 +42,7 @@ class GradioView:
                     agent_config = gr.CheckboxGroup(
                         label="Agent Config",
                         interactive=True,
-                        choices=_agent_tools(default_crew) if default_crew else [],
+                        choices=get_agent_tools(default_crew) if default_crew else [],
                     )
 
                     files = gr.File(label="Upload Files", file_count="multiple")
@@ -45,13 +50,13 @@ class GradioView:
                     preloaded_files = gr.File(
                         label="Preloaded Files",
                         file_count="multiple",
-                        value=_preloaded_files(default_crew) if default_crew else [],
-                        visible=bool(_preloaded_files(default_crew)) if default_crew else False,
+                        value=get_preloaded_files(default_crew) if default_crew else [],
+                        visible=bool(get_preloaded_files(default_crew)) if default_crew else False,
                     )
 
                     @gr.render(inputs=[agent_selection])
                     def render_variable_inputs(agent):
-                        user_inputs = [gr.Textbox(label=v) for v in _task_vars(agent)]
+                        user_inputs = [gr.Textbox(label=v) for v in get_task_vars(agent)]
                         submit_btn = gr.Button("Submit")
 
                         @submit_btn.click(
@@ -96,7 +101,7 @@ class GradioView:
                     )
 
                 return (
-                    gr.update(choices=_agent_tools(agent), value=[]),
+                    gr.update(choices=get_agent_tools(agent), value=[]),
                     uploaded,
                 )
 
@@ -107,7 +112,7 @@ class GradioView:
             )
 
             def _update_preloaded(agent):
-                pl = _preloaded_files(agent)
+                pl = get_preloaded_files(agent)
                 return gr.update(value=pl, visible=bool(pl))
 
             agent_selection.change(

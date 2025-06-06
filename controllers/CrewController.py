@@ -15,11 +15,11 @@ class CrewController:
         return self._model_cache[crew_name]
 
     def list_crews(self) -> list[str]:
-        return [m.crew_name for m in CrewModel.get_available_crews()]
+        return sorted([m.crew_name for m in CrewModel.get_available_crews()])
 
     def list_tools(self, crew_name: str) -> list[str]:
         tools, _, _ = CrewModel.discover_agent_tools(crew_name)
-        return tools
+        return sorted(tools)
 
     def task_variables(self, crew_name: str) -> list[str]:
         return CrewModel.get_tasks_variables(crew_name)
