@@ -1,13 +1,7 @@
 import os
 import shutil
 
-from gradio_ui.ui import create_ui
 from views import GradioView
-
-
-
-
-
 
 try:
     gradio_view = GradioView()

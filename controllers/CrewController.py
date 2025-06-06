@@ -1,4 +1,3 @@
-# controllers/crew_controller.py
 import importlib
 import os
 
@@ -27,6 +26,46 @@ class CrewController:
 
     def preloaded_files(self, crew_name: str) -> list[str]:
         return CrewModel.get_preloaded_files(crew_name)
+
+    def _import_crew(self, agent_selection: str):
+        """Dynamically import crew class and return crew object."""
+        try:
+            crew_module = importlib.import_module(f"crews.{agent_selection}.crew")
+            crew_class_name = "".join(word.capitalize() for word in agent_selection.split("_"))
+            crew_class = getattr(crew_module, crew_class_name)
+            return crew_class().crew()
+        except (ImportError, AttributeError) as e:
+            raise RuntimeError(f"Error loading crew {agent_selection}: {e}")
+
+    def _attach_tools_to_agent(self, crew_obj, crew_name: str, crew_tools: list[str], accumulated_logs: str) -> str:
+        """Attach selected tools to the first agent and return updated logs."""
+        if not crew_obj.agents:
+            return accumulated_logs
+
+        first_agent = crew_obj.agents[0]
+        if not crew_tools:
+            return accumulated_logs
+
+        for tool_name in crew_tools:
+            try:
+                tools, _, _ = CrewModel.discover_agent_tools(crew_name)
+                tool_index = tools.index(tool_name)
+                tool_file_path = CrewModel.get_crew_tools_full_paths(crew_name)[tool_index]
+                tool_module_name = os.path.splitext(os.path.basename(tool_file_path))[0]
+
+                tool_module = importlib.import_module(
+                    f"crews.{crew_name}.tools.{tool_module_name}"
+                )
+                tool_func = getattr(tool_module, tool_module_name)
+
+                first_agent.tools.append(tool_func)
+                accumulated_logs += f"\n- Added {tool_name} to {crew_name}"
+            except ValueError:
+                accumulated_logs += f"\n- Tool {tool_name} not found for {crew_name}"
+            except Exception as e:
+                accumulated_logs += f"\n- Error adding {tool_name}: {e}"
+
+        return accumulated_logs
 
     def get_crew_response(self, *args):
         """
@@ -68,37 +107,16 @@ class CrewController:
         accumulated_logs = process_logs
 
         try:
-            crew_module = importlib.import_module(f"crews.{agent_selection}.crew")
-            crew_class_name = "".join(word.capitalize() for word in agent_selection.split("_"))
-            crew_class = getattr(crew_module, crew_class_name)
-            crew_obj = crew_class().crew()
-        except (ImportError, AttributeError) as e:
-            yield (None, f"Error loading crew {agent_selection}: {e}")
+            crew_obj = self._import_crew(agent_selection)
+        except RuntimeError as e:
+            yield (None, str(e))
             return
 
         if crew_obj.agents:
-            first_agent = crew_obj.agents[0]
-
-            if crew_tools:
-                for tool_name in crew_tools:
-                    try:
-                        tool_index = crew_model.tools_names.index(tool_name)
-                        tool_file_path = crew_model.crew_tools_full_paths[tool_index]
-                        tool_module_name = os.path.splitext(os.path.basename(tool_file_path))[0]
-
-                        tool_module = importlib.import_module(
-                            f"crews.{agent_selection}.tools.{tool_module_name}"
-                        )
-                        tool_func = getattr(tool_module, tool_module_name)
-
-                        first_agent.tools.append(tool_func)
-                        accumulated_logs += f"\n- Added {tool_name} to {agent_selection}"
-                    except ValueError:
-                        accumulated_logs += f"\n- Tool {tool_name} not found for {agent_selection}"
-                    except Exception as e:
-                        accumulated_logs += f"\n- Error adding {tool_name}: {e}"
-
-                yield (None, accumulated_logs)
+            accumulated_logs = self._attach_tools_to_agent(
+                crew_obj, agent_selection, crew_tools, accumulated_logs
+            )
+            yield (None, accumulated_logs)
 
         accumulated_logs += "\n- Thinking on the answer..."
         yield (None, accumulated_logs)

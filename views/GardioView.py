@@ -1,9 +1,9 @@
-# views/gradio_view.py
 import os
+
 import gradio as gr
 
 from controllers import CrewController, FileController
-from models import CrewModel
+
 
 class GradioView:
 
